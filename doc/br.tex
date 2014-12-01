@@ -1,0 +1,660 @@
+%\documentclass{revtex4-1}
+% options: aip, jcp, reprint, preprint
+\documentclass[preprint]{revtex4-1}
+%\documentclass[notitlepage, preprint]{revtex4-1}
+%\documentclass[aip,jcp,reprint,superscriptaddress]{revtex4-1}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{dcolumn}
+\usepackage{bm}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{tikz}
+%\usepackage{setspace}
+
+\tikzstyle{blackdot}=[circle,draw=black,fill=black,
+                      inner sep=0pt,minimum size=1.5mm]
+\tikzstyle{whitedot}=[circle,draw=black,fill=white,
+                      inner sep=0pt,minimum size=1.5mm]
+\tikzstyle{combine}=[green!30!black, very thick, densely dotted]
+\tikzstyle{concat}=[blue!40!black, very thick, densely dashed]
+
+%\renewcommand{\theequation}{N\arabic{equation}}
+
+\newtheorem{defn}{Definition}
+\newtheorem{thrm}{Theorem}
+\newtheorem{lemm}[thrm]{Lemma}
+\newtheorem{prop}[thrm]{Proposition}
+
+\newcommand{\vct}[1]{\mathbf{#1}}
+\providecommand{\vr}{} % clear \vr
+\renewcommand{\vr}{\vct{r}}
+\newcommand{\vk}{\vct{k}}
+\newcommand{\vR}{\vct{R}}
+\newcommand{\dvk}{\frac{d\vk}{(2\pi)^D}}
+\newcommand{\tdvk}{\tfrac{d\vk}{(2\pi)^D}}
+
+% add a superscript ``ex''
+\newcommand{\supex}[1]{ { { #1 }^{ \mathrm{ex} } } }
+\newcommand{\Pex}{\supex{P}}
+\newcommand{\Ptex}{P^{ \mathrm{ex} }_t}
+\newcommand{\Fex}{\supex{F}}
+\newcommand{\muex}{\supex{\mu}}
+\newcommand{\mutex}{\mu^{ \mathrm{ex} }_t}
+\newcommand{\kex}{\supex{\kappa}}
+\newcommand{\Chn}{\mathscr{C}}
+%\newcommand{\Chn}{\mathcal{C}}
+%\newcommand{\Chn}{\mathsf{C}}
+\newcommand{\secref}[1]{Sec. \ref{#1}}
+
+\newcommand{\gmin}{g_\mathrm{min}}
+\newcommand{\rmin}{r_\mathrm{min}}
+
+\newcommand{\llbra}{[\![}
+\newcommand{\llket}{]\!]}
+
+
+
+
+
+\begin{document}
+
+\title{Computation of chemical potential and pressure from integral equations}
+
+\begin{abstract}
+  A simple method is proposed to approximately compute chemical potential and pressure
+  from integral equations.
+\end{abstract}
+%\maketitle
+
+
+
+%\section{Introduction}
+
+\section{Methods}
+
+\subsection{Overview}
+
+We wish to determine the ideal parameter $\gamma$
+of the following empirical formula of chemical potential $\muex$
+%
+\begin{align}
+  -\beta \muex
+  &\approx
+    \rho \, \int d\vr \,
+    \left[
+      c(r) - B(r) - \frac{1}{2} \, t(r) \, h(r)
+      -\gamma \, B(r) \, h(r)
+    \right].
+  \label{eq:mutiapprox}
+\end{align}
+%The method will be tested for the Lennard-Jones (LJ) fluid.
+%
+%The parameter $\gamma$ was found to be around $0.6$ in all tested cases.
+
+
+
+The ideal $\gamma$ is defined as
+%
+\begin{equation}
+  \gamma =
+\frac{
+  \beta \muex + \rho \, \int d\vr \,
+    \left[
+      c(r) - B(r) - \frac{1}{2} \, t(r) \, h(r)
+    \right]
+  }
+  {
+    \rho \, \int d\vr \, B(r) \, h(r)
+  },
+  \label{eq:solvegamma}
+\end{equation}
+with everything on the right hand side assuming the exact values.
+
+To compute the exact values, we perform
+a Monte Carlo (MC) or molecular dynamics (MD) simulation,
+and do the following three things.
+%
+\begin{enumerate}
+%
+%
+%
+\item
+Compute $-\beta \, \muex$
+from Widom's insertion method in the simulation:
+\begin{equation}
+  \exp( - \beta \, \muex)  = \langle \exp(-\beta \, \Delta U) \rangle,
+  \label{eq:widom}
+\end{equation}
+where $\Delta U$ is the increment of the potential energy
+of inserting a particle at a random position.
+%
+%
+%
+\item
+Deduce $B(r)$ from the radial distribution function $g(r)$
+obtained from the simulation
+(see details below).
+%
+%
+%
+\item
+Use $B(r)$ in the closure,
+\[
+  c(r) = \exp[-\beta \, \phi(r) + t(r) + B(r)] - 1 - t(r),
+\]
+and use the closure along with the Ornstein-Zernike (OZ) relation
+\begin{equation}
+  t(r) = \rho (c * h) (r).
+  \label{eq:oz}
+\end{equation}
+to solve $c(r)$, and $t(r)$.
+\end{enumerate}
+
+The first and third steps are straightforward.
+Below we shall focus on the second step
+  of compute the bridge function $B(r)$.
+
+
+
+
+\subsection{Compute the bridge function}
+
+In an MC or MD simulation, we can readily compute
+  the radial distribution function $g(r)$.
+%
+Thus, the most direct method of computing $B(r)$
+is to deduce it from $g(r)$:
+\begin{equation}
+  B(r) = \log y(r) - t(r),
+  \label{eq:Brdef}
+\end{equation}
+where
+\[
+  y(r) = g(r) \, \exp \beta \phi(r).
+\]
+
+The indirect correlation function $t(r)$ is computed as follows.
+%
+First, from the pair correlation function we get $h(r) = g(r) - 1$,
+and its Fourier transform $\tilde h(k)$.
+%
+Then, we can invert the OZ relation as
+\[
+  \tilde c(k)
+= \frac{ \tilde h(k) }
+  { 1 + \rho \, \tilde h(k) }.
+\]
+The inverse Fourier transform of $\tilde c(k)$ is $c(r)$,
+and $t(r) = h(r) - c(r)$.
+%
+With $t(r)$, we can use Eq. \eqref{eq:Brdef} to find $B(r)$.
+
+
+Now in the above method,
+although $B(r)$ appears in two places in Eq. \eqref{eq:mutiapprox},
+it only affects the last term.
+%
+To see this, we use Eq. \eqref{eq:Brdef} in Eq. \eqref{eq:mutiapprox}, and
+%
+\begin{align}
+  -\beta \muex
+  &\approx
+    \int d\vr \,
+    \left[
+      h(r) - \log y(r) - \frac{1}{2} \, t(r) \, h(r)
+      -\gamma \, B(r) \, h(r)
+    \right].
+  \label{eq:mutiapprox2}
+\end{align}
+%
+%Usually, only the short-range behavior of $B(r)$ affects the chemical potential,
+%for $h(r) \rightarrow 0$ as $r \rightarrow \infty$.
+
+
+
+\subsection{\label{sec:Brextrapolation}Extrapolation}
+
+The above method unfortunately fails for a small $r$,
+because $g(r)$ is nearly zero there,
+which makes the logarithm in Eq. \eqref{eq:Brdef} very inaccurate.
+%
+Thus, we used the above method only for $r > \rmin$,
+where $\rmin$ is defined as the first positive root of
+$g(\rmin) = \gmin$, with $\gmin \approx 0.3$.
+
+
+A simple remedy is to extrapolate the known $B(r)$ of $r > \rmin$ to $r = 0$.
+%
+We used the quadratic approximation:
+\begin{equation}
+  B_\mathrm{fit}(r) \approx a_0 + a_1 r + a_2 r^2,
+  \label{eq:Brpoly}
+\end{equation}
+with the parameters $a_0$, $a_1$ and $a_2$
+determined from fitting $B_\mathrm{fit}(r)$ against $B(r)$
+for the range $\rmin < r < r_1$,
+with $r_1$ set to 1.3.
+%
+Higher order polynomials tend to cause over-fitting
+and thus are unused.
+%
+The bridge function from Eq. \eqref{eq:Brpoly} is used for $r < \rmin$.
+
+Note that for a continuous molecular potential,
+we have $B'(0) = 0$ by the zero separation theorems\cite{meeron1968, zhou1988}.
+%
+The fitting result from Eq. \eqref{eq:Brpoly} does not satisfy this relation.
+%
+However, for the purpose of computing the chemical potential,
+$B(r)$ appears with the spherical area $d\vr \propto r^2 \, dr$,
+which makes the small $r$ behavior unimportant.
+%
+Thus, Eq. \eqref{eq:Brpoly} is still useful.
+
+
+
+\subsection{\label{sec:Brti}Thermodynamic integration}
+
+Another way to compute $B(r)$ is through a separate free energy calculation.
+%
+We used thermodynamic integration to compute $y(r)$,
+which is based on the following identity:
+\begin{equation}
+  (\log y)'(r_{12})
+=
+  \frac{1}{2}
+  \left.
+    \left\langle
+      \frac{ \beta \, \vct F_{12} \cdot \vr_{12} }
+           { r^2_{12} }
+    \right\rangle
+  \right|_{r_{12}}.
+  \label{eq:dydr}
+\end{equation}
+where
+$\vr_{12} = \vr_1 - \vr_2$,
+$\vct F_{12} = \vct F_1 - \vct F_2$ is the difference of the force,
+and the average is performed at a fixed distance $r_{12}$.
+%
+Here, particles 1 and 2 are special and not interacting with each other.
+That is, they are replaced by two cavities of unit radius.
+%
+Then $\log y$ can be computed from integrating $(\log y)'(r_{12})$ from $r_{12} = \infty$.
+
+We can use a special MC simulation to sample a flat histogram along $r_{12}$
+to get the profile of $\log y(r)$.
+%
+The mean force [the right-hand side of Eq. \eqref{eq:dydr}]
+is collected in the simulation,
+and the profile $\log y(r)$
+can be obtained on the fly
+by integrating Eq. \eqref{eq:dydr}.
+
+
+
+Although the method is more accurate, it requires an extra simulation.
+%
+The results, however, were very similar to those from the above extrapolation method.
+
+
+
+
+
+\section{Results}
+
+We applied the method on the LJ fluid.
+%
+The results are summarized in Table \ref{tab:results}.
+%
+%We used the standard equation of state from literature\cite{johnson1993} for $\muex$.
+%
+The radial distribution functions
+were collected from MC simulations in the canonical $NVT$ ensemble.
+%
+In each simulation,
+we also computed $\muex$ using Widom's method.
+%
+Ideally, we should use the grand canonical $\mu VT$ ensemble.
+%
+However, with a proper scaling (see Appendix \ref{apd:canonscaling}),
+the radial distribution function from the $NVT$ ensemble can be corrected to approximate
+that in the $\mu VT$ ensemble (see Fig. \ref{fig:rdfscale} for example).
+%
+For simplicity, we mainly used the $NVT$ ensemble in the production runs.
+
+\begin{figure}[h]
+  \makebox[\linewidth][c]{
+    \includegraphics[angle=0, width=0.75\linewidth]{../data/lj/rdf/rdf.pdf}
+  }
+  \caption{
+    \label{fig:rdfscale}
+    LJ fluid, $T = 10$, $\rho = 0.1$, $N = 256$.
+  }
+\end{figure}
+
+
+
+\subsection{Bridge function}
+
+The $B(r)$ and $g(r)$ in a typical case are shown in Fig. \ref{fig:ljBrT1rho0.7}.
+%
+The $B(r)$ from our method is close to PY result.
+%
+There is, however, an artifact:
+under a low temperature and high density ($T = 1$, $\rho \ge 0.7$),
+$B(r) \, 4 \pi \, r^2$, but not $B(r)$, has a non-negligible oscillating tail.
+%
+Fortunately, this problem is unlikely to affect the chemical potential too much,
+because $B(r)$ enters Eq. \eqref{eq:mutiapprox2} only through
+the combination of $B(r) h(r)$,
+and $h(r)$ suppresses the oscillation at large $r$.
+%
+In practice, we found that $B(r) \, h(r) \, 4 \pi \, r^2$ is always short-ranged,
+as shown in the inset of panel (a) of Fig. \ref{fig:ljBrT1rho0.7}.
+%
+Further, when we explicitly set $B(r) = 0$ for $r > r_\mathrm{max}$,
+we found little difference in the resulting $\gamma$ values.
+%
+However, to be cautious,
+we should consider the possibility that the $B(r)$, and hence the value $\gamma$,
+from our method are less reliable for the low-temperature and high-density cases.
+
+
+\begin{figure}[h]
+  \makebox[\linewidth][c]{
+    \includegraphics[angle=0, width=0.75\linewidth]{../data/lj/T1rho0.7/ljBrT1rho0.7.pdf}
+  }
+  \caption{
+    \label{fig:ljBrT1rho0.7}
+    LJ fluid, $T = 1$, $\rho = 0.7$.
+    (a) $B(r)$.
+    Inset: $B(r) \, h(r) \, d\vr$ as a function of $r$.
+    (b) $g(r)$ computed from different integral equations.
+  }
+\end{figure}
+
+
+
+
+
+\begin{table*}
+  \begin{tabular}[c]{p{1cm} p{1.1cm} p{1.3cm} p{3cm} p{1.5cm} p{1.3cm} p{1.3cm} p{1.5cm}
+    p{2.0cm} p{1.5cm}}
+        $T$
+    &   $\rho$
+    &   $N$
+    &   $\beta \, \mu^{\mathrm{ex} *}$
+    &   $\beta \, \mu_0^{\mathrm{ex} \P}$
+    &   $\Delta^\S$
+    &   $\gamma_\mathrm{T.I.}^\dagger$
+    &   $\gamma_\mathrm{fit}^\ddagger$
+    &   $\beta \, \muex^{(\mathrm{PY}) \#}$
+    &   $\beta \, \muex^{(\mathrm{HNC})}$
+        \\
+    \hline
+     1    &   0.676   &  2048 &   $-3.595$ ($-3.616$)    & $-6.371$  &  $4.47$   &   $0.621$  &   $0.630$  &  $-3.816$ &  $-2.445$  \\
+     1    &   0.7     &  2048 &   $-3.458$ ($-3.477$)    & $-6.820$  &  $5.44$   &   $0.618$  &   $0.627$  &  $-3.749$ &  $-2.134$  \\
+     $1^\mathrm{GC}$
+          &   $0.697$ & $2039.0$& $-3.478$ ($-3.477$)    & $-6.890$  &  $5.57$   &   $0.613$  &   $0.599$  &                        \\
+     1    &   0.757   &  2048 &   $-2.916$ ($-2.925$)    & $-7.955$  &  $8.3 $   &   $0.61 $  &   $0.62 $  &  $-3.460$ &  $-1.119$  \\
+     1    &   0.8     &  2048 &   $-2.271$ ($-2.272$)    & $-9.121$  &  $11.3$   &   $0.61 $  &   $0.61 $  &  $-3.092$ &  $-0.052$  \\
+     $1^\mathrm{GC}$
+          &   $0.799$ & $2045.2$& $-2.262$ ($-2.272$)    & $-9.250$  &  $11.5$   &   $0.60 $  &   $0.61 $  &                        \\
+     1    &   0.827   &  2048 &   $-1.735$ ($-1.742$)    & $-9.838$  &  $13.5$   &   $0.60 $  &   $0.61 $  &  $-2.783$ &  $+0.768$  \\
+    \hline
+     1.5  &   0.3     &  864  &   $-1.121$ ($-1.118$)    & $-1.218$  &  $0.129$  &   $0.756$  &   $0.747$  &  $-1.146$ &  $-1.089$  \\
+     1.5  &   0.5     &  864  &   $-1.314$ ($-1.322$)    & $-1.936$  &  $0.933$  &   $0.666$  &   $0.664$  &  $-1.387$ &  $-1.052$  \\
+     1.5  &   0.7     &  2048 &   $-0.401$ ($-0.400$)    & $-3.148$  &  $4.45$   &   $0.617$  &   $0.623$  &  $-0.732$ &  $+0.638$  \\
+     1.5  &   0.8     &  2048 &   $+0.979$ ($+0.955$)    & $-4.255$  &  $8.56$   &   $0.611$  &   $0.614$  &  $+0.240$ &  $+2.650$  \\
+    \hline
+     2    &   0.3     &  864  &   $-0.477$ ($-0.472$)    & $-0.570$  &  $0.126$  &   $0.74 $  &   $0.72 $  &  $-0.494$ &  $-0.446$  \\
+     2    &   0.5     &  864  &   $-0.259$ ($-0.266$)    & $-0.823$  &  $0.860$  &   $0.656$  &   $0.656$  &  $-0.336$ &  $-0.024$  \\
+     2    &   0.7     &  2048 &   $+0.990$ ($+1.002$)    & $-1.366$  &  $3.80$   &   $0.620$  &   $0.624$  &  $+0.663$ &  $+1.856$  \\
+    \hline
+    10    &   0.1     &  864  &   $+0.2136$ ($+0.218$)   & $+0.2117$ &  $0.0024$ &   $0.77 $  &   $0.78 $  &  $+0.2131$&  $+0.2141$ \\
+    10    &   0.3     &  864  &   $+0.797$ ($+0.817$)    & $+0.750$  &  $0.070$  &   $0.67 $  &   $0.68 $  &  $+0.786$ &  $+0.817$  \\
+    10    &   0.5     &  864  &   $+1.690$ ($+1.717$)    & $+1.424$  &  $0.415$  &   $0.643$  &   $0.646$  &  $+1.633$ &  $+1.795$  \\
+    10    &   0.7     &  2048 &   $+3.066$ ($+3.099$)    & $+2.209$  &  $1.359$  &   $0.631$  &   $0.629$  &  $+2.898$ &  $+3.382$  \\
+    \hline
+    \multicolumn{10}{l}{
+      $^*$
+      The number was computed from Eq. \eqref{eq:widom},
+      and the number in the parentheses is from literature\cite{johnson1993}.
+    }
+    \\
+    \multicolumn{10}{l}{
+      $^\P$
+      $\beta \mu_0^\mathrm{ex} \equiv \rho \int [B(r) - c(r) + \frac{1}{2} t(r) \, h(r)] \, d\vr$
+      with $B(r)$ from the thermodynamic integration method
+      (Sec. \ref{sec:Brti}).
+    }
+    \\
+    \multicolumn{10}{l}{
+      $^\S$
+      $\Delta \equiv \rho \int B(r) \, h(r) \, d\vr$ \
+      with $B(r)$ from the thermodynamic integration method
+      (Sec. \ref{sec:Brti}).
+    }
+    \\
+    \multicolumn{10}{l}{
+      $^\dagger$
+      From the thermodynamic integration method
+      (Sec. \ref{sec:Brti}).
+    }
+    \\
+    \multicolumn{10}{l}{
+      $^\ddagger$
+      From the polynomial extrapolation method
+      (Sec. \ref{sec:Brextrapolation}).
+    }
+    \\
+    \multicolumn{10}{l}{
+      $^\#$
+      Using Eq. \eqref{eq:mutiapprox} with $\gamma = 2/3$.
+    }
+    \\
+    \multicolumn{10}{l}{
+      $^\mathrm{GC}$
+      Grand-canonical ensemble simulations.
+    }
+    \\
+    \hline
+  \end{tabular}
+  \caption{\label{tab:results}Optimal $\gamma$ for the LJ fluid.}
+\end{table*}
+
+
+
+
+\subsection{Ideal $\gamma$}
+
+As shown in Table \ref{tab:results},
+the ideal $\gamma$ appears to be around $0.6$ to $0.8$.
+%
+The value tends to drop with the density, $\rho$.
+However, it stays above $0.5$ in all cases.
+%
+In low density cases,
+the correction function $\Delta =\int B(r) \, h(r) \, d\vr$
+is very small.
+%
+Thus, $\gamma$ can be inaccurate in these cases
+because $\Delta$ serves as the denominator of \eqref{eq:solvegamma}.
+%
+It is also clear from the Table that the ensemble difference is trivial.
+
+More data can be found under \texttt{/Bossman/mu/data/lj}.
+%
+The directories are arranged by the density, $\rho$,
+and temperature, $T$,
+and each directory contains a figure similar to Fig. \ref{fig:ljBrT1rho0.7}.
+%
+%The bridge function can be viewed in gnuplot as
+%
+%\texttt{plot "Brout1.dat" u 1:2 w l}
+
+
+\subsection{Error of the bridge function}
+
+In practice, we rarely know the exact bridge function $B(r)$.
+%
+Thus, we wish to know how the ideal $\gamma$ varies
+with respect to the error of $B(r)$.
+%
+For simplicity,
+we investigated the case of a scaled bridge function $\hat B(r) = s \, B(r)$,
+%
+such that the error is represented by $|s - 1|$.
+%
+For each $s$,
+we use $\hat B(r)$ as the bridge function in the integral equation,
+and solve for $c(r)$ and $t(r)$.
+%
+Then, we use the above correlation functions in Eq. \eqref{eq:solvegamma}
+to compute the corresponding ideal $\gamma$.
+
+\begin{figure}[h]
+  \makebox[\linewidth][c]{
+    \includegraphics[angle=0, width=0.75\linewidth]{../data/lj/Bscale/Bscale.pdf}
+  }
+  \caption{
+    \label{fig:Bscale}
+    (a) Ideal $\gamma$ as a function of the scaling factor $s$ of the bridge function $B(r)$.
+    (b) $\beta \muex$ computed from the scaled bridge function $s \, B(r)$, using $\gamma = 0$ or $2/3$.
+  }
+\end{figure}
+
+
+As shown in Fig. \ref{fig:Bscale}(a),
+for a sufficiently large scaling $s$,
+the ideal $\gamma$ stays around 0.5 to 0.7,
+which agrees with our previous observation in Table \ref{tab:results}.
+%
+However, if the scaling $s$ is too small (i.e., HNC case),
+the $\gamma$ can change more dramatically.
+
+If we use a scaled bridge function,
+the chemical potential from Eq. \eqref{eq:mutiapprox}
+as a function of $s$ is plotted in Fig. \ref{fig:Bscale}(b)
+for two empirical values $\gamma = 0$ and $2/3$.
+%
+It is clear that $\gamma = 2/3$ yields
+more accurate and stable (i.e., with a less steep slope) results
+than $\gamma = 0$ in most cases.
+%
+This suggests that
+if we use an inexact bridge function,
+the empirical value $\gamma = 2/3$
+may be preferred over $\gamma = 0$.
+
+
+
+\appendix
+
+\section{\label{apd:canonscaling}
+Normalization of the radial distribution function $g(r)$}
+
+Because of to the finite size effect,
+the radial distribution function $g(r)$
+obtained from a simulation in the canonical ensemble
+does not approach unity as $r$ approaches the half box size $L/2$,
+even in the low-density limit.
+Instead, $g(L/2)$ is $1 + O(1/N)$.
+%
+The $g(r)$ of the grand-canonical ensemble does not suffer from the problem.
+%
+Below, we present an approximation to normalize the $g(r)$
+from a simulation performed in the canonical ensemble,
+such that the result would resemble the $g(r)$ in the grand-canonical ensemble.
+%
+This is based on a technique used in reference\cite{kolafa2002}.
+
+
+We should normalize $g(r)$ to $g^*(r)$,
+such that $h^*(r) \equiv g^*(r) - 1$ satisfies the relation:
+\begin{equation}
+  1 + \rho \int h^*(r) \, d\vr= \kappa,
+  \label{eq:hint}
+\end{equation}
+where
+\begin{align*}
+  \kappa
+&=
+  \frac{1}{N}
+  \frac { \partial N }
+  { \partial (\beta \, \mu) }
+= \frac { \partial \rho }
+        { \partial (\beta \, P) }.
+\end{align*}
+In terms of $g^*(r)$, we have
+\[
+  \rho \int g^*(r) \, d\vr = N - 1 + \kappa.
+\]
+
+In the canonical ensemble, the $g(r)$ is normalized such that
+\[
+  \rho \int g(r) \, d\vr = N - 1,
+\]
+Now to make \eqref{eq:hint} true, we scale the $g(r)$
+in the canonical ensemble as
+\[
+  g^*(r) = g(r)
+  \left(
+  1 +
+  \frac{ \kappa }{ N - 1}
+  \right),
+\]
+where
+\begin{align*}
+\kappa^{-1}
+&= 1
++ \left(1-\frac{1}{D}\right) \frac{ \beta \, \Pex }{ \rho}
+- \frac{V}{\rho}
+  \Bigl\langle
+    \Delta (\beta \, \Pex)^2
+  \Bigr\rangle
++ \frac{ \beta \, X_2 } { D^2 },
+\end{align*}
+with $D$ being the dimension, $\Pex$ being the excess chemical potential,
+\begin{align*}
+  \beta \, \Pex
+&=
+\rho
+-
+\frac{ \beta } { D \, V } \sum_{i = 1}^N
+\left\langle
+  \vr_i \cdot \frac{ \partial U } { \partial \vr_i }
+\right\rangle
+\\
+&=
+\rho
+-
+\frac{ \beta \rho^2 } { 2 D }
+\int
+r \, \phi'(r) \, d\vr,
+\end{align*}
+and
+\begin{align*}
+X_2
+&= \frac{1}{N} \, \sum_{i, j = 1}^N
+\left\langle
+  \vr_j \cdot
+  \frac{ \partial^2 U }
+  { \partial \vr_j \, \partial \vr_i }
+  \cdot \vr_i
+\right\rangle
+\\
+&= \frac{1}{N} \, \sum_{i < j}
+ r_{ij}^2 \, \phi''(r_{ij})
+= \frac{ \rho }{ 2 }
+   \int r^2 \, \phi''(r) \, g(r) \, d\vr.
+\end{align*}
+
+\bibliography{liquid}
+\end{document}
+
