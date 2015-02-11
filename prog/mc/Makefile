@@ -1,23 +1,9 @@
-progs=mc mc1 gmc ozgr
+progs=mc mc1 gmc
 
 all: $(progs)
 
-mc: mc.c zcom.h
+$(progs): %: %.c zcom.h
 	icc -Wall -Wremarks $< -o $@
-
-mc1: mc1.c zcom.h
-	icc -Wall -Wremarks $< -o $@
-
-gmc: gmc.c zcom.h
-	icc -Wall -Wremarks $< -o $@
-
-deps=zcom.h ieutil.h xdouble.h fft.h fftx.h
-
-ozgr: ozgr.c $(deps)
-	icc -Wall -Wremarks -DFFTW $< -o $@ -lfftw3
-
-ieodfftw: ievir.c $(deps)
-	icc -Wall -Wremarks -DFFTW $< -o $@ -lfftw3
 
 remote = cz1@129.109.88.204
 
