@@ -90,7 +90,7 @@ __inline double interp(double x, double *xi, double *yi,
 
 /* load g(r) */
 __inline int loadgr(const char *fn, int npt, xdouble *gr,
-    const xdouble *ri, xdouble sdr, xdouble *prho)
+    const xdouble *ri, xdouble dr, xdouble *prho)
 {
   double *ri0 = NULL, *gr0 = NULL, r, r0max;
   int i, n0 = 0;
@@ -100,10 +100,10 @@ __inline int loadgr(const char *fn, int npt, xdouble *gr,
   if ( gr0 == NULL ) return -1;
   r0max = ri0[n0-1];
 
-  if (sdr > 0) {
+  if (dr > 0) {
     double s = 0, sg = 0;
     for ( i = 0; i < n0; i++ )
-      if ( ri0[i] > r0max - sdr ) {
+      if ( ri0[i] > r0max - dr ) {
         s += 1;
         sg += gr0[i];
       }

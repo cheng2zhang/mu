@@ -3,10 +3,11 @@
 #define ZCOM_LOG
 #define ZCOM_ARGOPT
 #include "zcom.h"
+#include "ljx.h"
 
 
 
-int d = 3;
+int dim = 3;
 int n = 108;
 real tp = 10;
 real rho = (real) 0.7;
@@ -15,12 +16,12 @@ int dolj = 1;
 double nequil = 1000000;
 double nsteps = 1000000;
 int nstrdf = 1000;
-//int nstvir2 = 20;
 double nstsave = 1e7;
 double uref, Pref, Fref, muref;
 int verbose = 0;
 
 char fnrdf[80];
+
 
 
 static void doargs(int argc, char **argv)
@@ -35,7 +36,6 @@ static void doargs(int argc, char **argv)
   argopt_add(ao, "-1", "%lf", &nsteps, "number of steps for actual runs");
   argopt_add(ao, "--mu", "%lf", &muref, "specify the reference mu value");
   argopt_add(ao, "--nstrdf", "%d", &nstrdf, "number of steps of doing RDF");
-  //argopt_add(ao, "--nstvir2", "%d", &nstvir2, "number of steps of computing vir2");
   argopt_add(ao, "--nstsave", "%lf", &nstsave, "number of steps to save data");
   //argopt_add(ao, "-G", "%b", &gaussf, "do the Gaussian fluid");
   //argopt_add(ao, "--invexp", "%d", &invexp, "exponent e of the r^{-e} fluid");
@@ -54,37 +54,6 @@ static void doargs(int argc, char **argv)
   argopt_close(ao);
 }
 
-
-
-static real lj_widom(lj_t *lj, real beta)
-{
-  real du, bu;
-
-  du = lj_duinsert(lj, NULL);
-  bu = beta * du;
-  return (bu > 700) ? 0 : exp(-bu);
-}
-
-
-
-#if 0
-static real lj_getvir2(lj_t *lj)
-{
-  int i, j, n = lj->n;
-  real dx[3], dr2, dr6, vir2 = 0, l = lj->l, rc2 = lj->rc2;
-
-  for ( i = 0; i < n; i++ ) {
-    for ( j = i + 1; j < n; j++ ) {
-      dr2 = lj_pbcdist2_3d(dx, lj->x + i*3, lj->x + j*3, l);
-      if (dr2 > rc2) continue;
-      dr2 = 1 / dr2;
-      dr6 = dr2 * dr2 * dr2;
-      vir2 += dr6 * (624 * dr6 - 168);
-    }
-  }
-  return vir2;
-}
-#endif
 
 
 av_t avU[1] = {0}, avp[1] = {0}, avxp[1] = {0}, avvir2[1] = {0};
@@ -114,17 +83,17 @@ static double getvir2(ljrdf_t *ljrdf)
 static void save(logfile_t *logfile, ljrdf_t *ljrdf, double acc, double t)
 {
   lj_t *lj = ljrdf->lj;
-  real u, p, rho, bpx, xpnbu, varbpx, invc, bvir2;
+  real u, p, rho1, bpx, xpnbu, varbpx, invc, bvir2;
 
   u = av_getave(avU)/lj->n;
   p = av_getave(avp);
-  rho = lj->n / lj->vol;
-  bpx = p/tp - rho;
+  rho1 = lj->n / lj->vol;
+  bpx = p/tp - rho1;
   varbpx = av_getvar(avp)/(tp*tp);
   //real vir2a = av_getave(avvir2)/lj->n;
   bvir2 = (real) getvir2(ljrdf) / tp;
   /* d(beta * P) / d rho */
-  invc = 1 - varbpx * lj->vol / rho + bpx/rho * (1 - 1./lj->d)
+  invc = 1 - varbpx * lj->vol / rho1 + bpx/rho1 * (1 - 1./lj->d)
        + bvir2 / (lj->d*lj->d);
   xpnbu = log(av_getave(avxp));
   ljrdf->cfac = 1 + 1./invc/(lj->n - 1);
@@ -150,8 +119,8 @@ static int domc(void)
   logfile = log_open(fnlog);
   logfile->flags = LOG_WRITESCREEN | LOG_FLUSHAFTER | LOG_APPEND;
 
-  lj = lj_open(n, d, rho, 1e8);
-  lj->dof = n * d;
+  lj = lj_open(n, dim, rho, 1e8);
+  lj->dof = n * dim;
 
   ljrdf = ljrdf_open(lj, 0.01, 0);
   sprintf(fnrdf, "rdfT%grho%gn%d.dat", tp, rho, n);
@@ -178,10 +147,6 @@ static int domc(void)
       xpnbu = lj_widom(lj, 1/tp);
       av_add(avxp, xpnbu);
     }
-    //if (fmod(t, nstvir2) < .5) {
-    //  real vir2 = lj_getvir2(lj);
-    //  av_add(avvir2, vir2);
-    //}
     if (fmod(t, nstrdf) < .5) {
       ljrdf_add(ljrdf, 0);
       if (fmod(t, nstsave) < 0.5) {

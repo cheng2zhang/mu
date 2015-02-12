@@ -52,9 +52,9 @@ set key right top Left reverse spacing 1.25 font "Times, 28"
 
 plot [0.9:4][0.98:1.16] \
    1 w l ls 100 lw 0.5 notitle, \
-  "grdfT10rho0.1n256.dat"  u 1:3                w l   ls 1 t "Grand-canonical", \
-  "rdfT10rho0.1n256a.dat"  u 1:3  every 5       w l   ls 2 t "Canonical, unscaled", \
-  "rdfT10rho0.1n256.dat"   u 1:3  every 5       w l   ls 3 t "Canonical, scaled"
+  "../T10rho0.1/grdfT10rho0.1n256.dat"  u 1:3                w l   ls 1 t "Grand-canonical", \
+  "../T10rho0.1/rdfT10rho0.1n256a.dat"  u 1:3  every 5       w l   ls 2 t "Canonical, unscaled", \
+  "../T10rho0.1/rdfT10rho0.1n256.dat"   u 1:3  every 5       w l   ls 3 t "Canonical, scaled"
 
 
 

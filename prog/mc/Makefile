@@ -1,8 +1,10 @@
-progs=mc mc1 gmc
+hdrs=$(wildcard *.h)
+csrcs=$(wildcard *.c)
+progs=$(patsubst %.c,%, $(csrcs))
 
 all: $(progs)
 
-$(progs): %: %.c zcom.h
+$(progs): %: %.c $(hdrs)
 	icc -Wall -Wremarks $< -o $@
 
 remote = cz1@129.109.88.204

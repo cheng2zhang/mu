@@ -244,7 +244,7 @@ static void doargs(int argc, char **argv)
 
 
 /* compute virial coefficients from integral equations */
-static int intgeq(int nmax, int npt, xdouble rmax, xdouble Rmax, int ffttype)
+static int intgeq(int npt)
 {
   xdouble Bc, Bv, Bm = 0, Bh = 0, Br = 0, By = 0, B2, fcorr = 0;
   xdouble *bphi, *fr, *rdfr, *swr;
@@ -579,6 +579,6 @@ static int intgeq(int nmax, int npt, xdouble rmax, xdouble Rmax, int ffttype)
 int main(int argc, char **argv)
 {
   doargs(argc, argv);
-  intgeq(nmax, numpt, rmax, Rmax, ffttype);
+  intgeq(numpt);
   return 0;
 }

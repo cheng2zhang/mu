@@ -1206,7 +1206,7 @@ __inline static int matchrdf(sphr_t *sphr, xdouble rho,
 
 
 
-static int integ(int npt, xdouble rmax, xdouble rhom, xdouble drho, int itm)
+static int integ(int npt, xdouble rhom, xdouble drho, int itm)
 {
   xdouble rho;
   xdouble *bphi = NULL;
@@ -1511,7 +1511,7 @@ static int integ(int npt, xdouble rmax, xdouble rhom, xdouble drho, int itm)
 int main(int argc, char **argv)
 {
   doargs(argc, argv);
-  integ(numpt, rmax, rhomax, rhodel, itmax);
+  integ(numpt, rhomax, rhodel, itmax);
   return 0;
 }
 

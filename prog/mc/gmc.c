@@ -3,6 +3,7 @@
 #define ZCOM_LOG
 #define ZCOM_ARGOPT
 #include "zcom.h"
+#include "ljx.h"
 
 
 
@@ -24,23 +25,24 @@ char fnrdf[80];
 
 
 
+
 /* solve the rho that correspond to mu */
-static real solverho(double tp, double muexref, double rho0)
+static real solverho(double temp, double muexref, double rho0)
 {
   double rho1, rho2, mu0, mu1, mu2, fac = 0.9;
 
   /* get the initial bracket */
   for ( rho1 = rho0; ; rho1 *= fac ) {
-    lj_eos3dx(rho1, tp, NULL, NULL, &mu1, eostype);
+    lj_eos3dx(rho1, temp, NULL, NULL, &mu1, eostype);
     if ( mu1 < muexref ) break;
   }
   for ( rho2 = rho0; ; rho2 /= fac ) {
-    lj_eos3dx(rho2, tp, NULL, NULL, &mu2, eostype);
+    lj_eos3dx(rho2, temp, NULL, NULL, &mu2, eostype);
     if ( mu2 > muexref ) break;
   }
   for ( ; fabs(rho1 - rho2) > 1e-14; ) {
     rho0 = (rho1 + rho2) / 2;
-    lj_eos3dx(rho0, tp, NULL, NULL, &mu0, eostype);
+    lj_eos3dx(rho0, temp, NULL, NULL, &mu0, eostype);
     if ( mu0 > muexref ) {
       rho2 = rho0;
       mu2 = mu0;
@@ -100,92 +102,6 @@ static void doargs(int argc, char **argv)
   printf("T %g, rho %g, mu0ref %g, nsteps %g\n", (double) tp, (double) rho, mu0ref, nsteps);
   if ( verbose ) argopt_dump(ao);
   argopt_close(ao);
-}
-
-
-
-static real lj_widom(lj_t *lj, real beta)
-{
-  real du, bu;
-
-  du = lj_duinsert(lj, NULL);
-  bu = beta * du;
-  return (bu > 700) ? 0 : exp(-bu);
-}
-
-
-
-static int lj_insert(lj_t *lj, real beta, real bmu0, int nmax)
-{
-  int j, n = lj->n;
-  real du = 0, dvir = 0, u, vir, fac, xi[3];
-
-  if (lj->n >= nmax) return 0;
-
-  for (j = 0; j < 3; j++) xi[j] = (real) rnd0();
-  for (u = vir = 0, j = 0; j < n; j++) { /* pair energy */
-    if (lj_pair(lj, xi, lj->x + 3*j, &du, &dvir)) {
-      u += du;
-      vir += dvir;
-    }
-  }
-  du  = lj_gettail(lj, (n+1)/lj->vol, n+1, NULL);
-  du -= lj_gettail(lj, n/lj->vol, n, NULL);
-
-  /* we do not consider utail in the acceptance ratio */
-  fac = lj->vol*exp(bmu0 - beta*(u+du))/(n+1);
-  if ( fac > 1 || rnd0() < fac ) { /* accept */
-    rv3_copy(lj->x + n*3, xi);
-    lj->epot0 += u;
-    lj->vir += vir;
-    lj->n = n + 1;
-    lj_setrho(lj, lj->n/lj->vol);
-    lj->epot = lj->epot0 + lj->epot_tail;
-    //real ep1, ep0, vir1;
-    //ep1 = lj_energylj3d(lj, (rv3_t *) lj->x, &vir1, &ep0, NULL);
-    //printf("insert: epot0 %g(%g), epot %g(%g), vir %g(%g)\n", lj->epot0, ep0, lj->epot, ep1, lj->vir, vir1); getchar();
-    lj->dof = lj->n * lj->d;
-    return 1;
-  }
-  return 0;
-}
-
-
-
-static int lj_delete(lj_t *lj, real beta, real bmu0)
-{
-  int i, j, n = lj->n;
-  real du = 0, dvir = 0, u, vir, fac, *xi;
-
-  if (n <= 0) return 0;
-
-  i = (int) (rnd0() * n);
-  xi = lj->x + 3*i;
-  for (u = vir = 0, j = 0; j < n; j++) { /* pair energy */
-    if ( j == i ) continue;
-    if (lj_pair(lj, xi, lj->x + 3*j, &du, &dvir)) {
-      u += du;
-      vir += dvir;
-    }
-  }
-  du  = lj_gettail(lj, n/lj->vol, n, NULL);
-  du -= lj_gettail(lj, (n-1)/lj->vol, n-1, NULL);
-
-  fac = n*exp(beta*(u+du) - bmu0)/lj->vol;
-  if ( fac > 1 || rnd0() < fac ) { /* accept */
-    rv3_copy(xi, lj->x + (n-1)*3);
-    lj->epot0 -= u;
-    lj->vir -= vir;
-    lj->n = n - 1;
-    lj_setrho(lj, lj->n/lj->vol);
-    lj->epot = lj->epot0 + lj->epot_tail;
-    lj->dof = lj->n * lj->d;
-    //real ep1, ep0, vir1;
-    //ep1 = lj_energylj3d(lj, (rv3_t *) lj->x, &vir1, &ep0, NULL);
-    //printf("delete: epot0 %g(%g), epot %g(%g), vir %g(%g)\n", lj->epot0, ep0, lj->epot, ep1, lj->vir, vir1); getchar();
-    return 1;
-  }
-  return 0;
 }
 
 
