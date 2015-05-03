@@ -1,11 +1,11 @@
 prj=mu
 
-figs=mupy musqr mugamma muBr
-pdffigs=$(patsubst %,fig/%.pdf, $(figs))
-epsfigs=$(patsubst %,fig/%.eps, $(figs))
-figgps=$(patsubst %,fig/%.gp,  $(figs))
+gps=$(wildcard fig/*.gp)
+figs=$(patsubst %.gp, %, $(gps))
+pdffigs=$(patsubst %, %.pdf, $(figs))
+epsfigs=$(patsubst %, %.eps, $(figs))
 
-docpdf = $(prj).pdf br.pdf attard.pdf
+docpdf = $(prj).pdf
 
 all: $(docpdf)
 
@@ -25,11 +25,11 @@ clean:
 
 $(prj)doc.zip: $(prj).tex $(prj).pdf liquid.bib \
 	       $(epsfigs) $(pdffigs) $(figgps) \
-	       README Makefile
+	       Makefile
 	zip -r $@ $^
 
 zip: $(prj)doc.zip
 
 Bossman: zip
 	rsync -avL $(prj)doc.zip \
-	  cz1@129.109.88.204:/Bossman/cz1/vir/iedoc
+	  cz1@129.109.88.204:/Bossman/cz1/mu/doc

@@ -34,20 +34,24 @@
 \renewcommand{\vr}{\vct{r}}
 \newcommand{\vk}{\vct{k}}
 \newcommand{\vR}{\vct{R}}
+\newcommand{\dvr}{d\vr}
 \newcommand{\dvk}{\frac{d\vk}{(2\pi)^D}}
 \newcommand{\tdvk}{\tfrac{d\vk}{(2\pi)^D}}
 
 % add a superscript ``ex''
 \newcommand{\supex}[1]{ { { #1 }^{ \mathrm{ex} } } }
 \newcommand{\Pex}{\supex{P}}
-\newcommand{\Ptex}{P^{ \mathrm{ex} }_t}
 \newcommand{\Fex}{\supex{F}}
 \newcommand{\muex}{\supex{\mu}}
-\newcommand{\mutex}{\mu^{ \mathrm{ex} }_t}
 \newcommand{\kex}{\supex{\kappa}}
-\newcommand{\Chn}{\mathscr{C}}
-%\newcommand{\Chn}{\mathcal{C}}
-%\newcommand{\Chn}{\mathsf{C}}
+
+\newcommand{\muv}{\mu^{(v)}}
+\newcommand{\muc}{\mu^{(c)}}
+\newcommand{\mux}{\mu^{(\xi)}}
+\newcommand{\muexv}{\mu^{\mathrm{ex}, (v)}}
+\newcommand{\muexc}{\mu^{\mathrm{ex}, (c)}}
+\newcommand{\muexx}{\mu^{\mathrm{ex}, (\xi)}}
+\newcommand{\mutex}{\mu^{ \mathrm{ex} }_t}
 \newcommand{\secref}[1]{Sec. \ref{#1}}
 
 \newcommand{\llbra}{[\![}
@@ -59,899 +63,989 @@
 
 \begin{document}
 
-\title{Computation of chemical potential and pressure from integral equations}
+\title{Approximate expressions of chemical potential from integral equations}
 
 \begin{abstract}
-  A simple method is proposed to approximately compute chemical potential and pressure
-  from integral equations.
+  Several expressions of computing
+  chemical potentials
+  from integral equations
+  are reviewed.
+  %
+  A simple strategy is proposed to approximately
+  compute chemical potential
+  from these routes.
 \end{abstract}
 \maketitle
 
 
 
+
+
 \section{Introduction}
 
-Integral equations are widely used in computing
-the approximate pair correlation function, $g(\vr)$, of a given fluid.
+
+
+For a given liquid,
+the chemical potential, $\mu$,
+gives the free energy of adding a particle into the system.
 %
-Thermodynamic quantities can then be computed from $g(\vr)$,
-at least, in theory.
+The chemical potential can be computed from
+molecular dynamics (MD) and
+Monte Carlo (MC) simulations,
+by e.g., Widom's insertion formula
+or thermodynamic integration.
 %
-In practice, however, these quantities may involve integrals
-over some order parameters, which is inconvenient.
+The simulations, however, can be expensive
+and yield little insight.
 %
-Take chemical potential, $\mu$, for example,
-only under the hypernetted-chain (HNC) and KH integral equations,
-we have closed-form formulae.
+Here, we consider a cheaper alternative
+by using integral equations
+from liquid state theory\cite{hansen}.
+
+
+
+The method of integral equations
+focuses on computing approximate correlation functions,
+such as the pair correlation function, $g(r)$,
+and the direct correlation function, $c(r)$.
+The chemical potential is then expressed
+as a functional of the correlation functions.
 %
-Otherwise, an integral over the charging parameter $\xi$ is needed.
+Although different expressions exist,
+they should ideally yield the same value.
 %
-Even in the HNC case, this formula yields only the virial-route value,
-and the compressibility-route value, which is often more accurate,
-is still unavailable.
+In practice, however,
+approximate integral equations
+are internal inconsistent,
+and different expressions (or routes)
+yield different values.
 %
-Here we give simple formulae
-of chemical potential or pressure for a general integral equation.
+% integral equation is approximate.
+% this leads to internal inconsistency.
+% the inconsistency leads to different values from different routes
 %
-Although the formulae are approximate,
-their values were shown to be reasonably accurate.
+
+
+
+Here, we review
+a few expressions of computing the chemical potential.
 %
-The method is demonstrated on the three-dimensional hard-sphere fluid.
+The two well-known expressions
+for computing the compressibility and (virial) pressure
+can be adapted here for computing the chemical potential.
+%
+Additionally,
+the chemical-potential can be obtained
+from an integral over a charging parameter, $\xi$,
+which controls the interaction
+of a distinct particle with other particles.
+%
+In the last case,
+the resulting value depends on the definition of $\xi$,
+since the integral generally does not yield a state function.
+%
+Further,
+for each chemical-potential route,
+there is a corresponding generalized energy route.
+%
+The above expressions all involve integrals
+over some parameter,
+e.g., the density, $\rho$,
+or the charging parameter, $\xi$.
+%
+Here, we also attempt to give approximate expressions
+that avoid such integrals.
+
 
 
 
 \section{Methods}
 
 
-\subsection{Integral equations}
 
-We first review the method of integral equations in the liquid state theory.
+
+
+\subsection{Basics of integral equations}
+
+
+
+We first review the basics of integral equations
+in liquid state theory.
 %
 We shall use the standard notations:
-$c(\vr)$, $t(\vr)$, and $h(\vr) = g(\vr) - 1 = c(\vr) + t(\vr)$
-are the direct, indirect, and total correlation functions, respectively;
-$y(\vr) = g(\vr) \, e^{\beta \phi(\vr)}$ is cavity distribution function;
-and $B(\vr) = \log y(\vr) - t(\vr)$ is the bridge function.
+%
+$\phi(r)$
+is the pair potential
+for two particles separated by $r$;
+%
+$f(r) = e^{ -\beta \, \phi(r) } - 1$
+is the Mayer $f$-function
+with
+$\beta = 1/(k_B \, T)$
+being the inverse temperature;
+%
+$c(r)$, $t(r)$, and $h(r) = g(r) - 1 = c(r) + t(r)$
+are the direct, indirect,
+and total correlation functions, respectively;
+%
+$y(r) = g(r) \, e^{\beta \phi(r)}$
+is the cavity distribution function;
+%
+and
+$B(r) = \log y(r) - t(r)$
+is the bridge function.
 
-If the bridge function $B(\vr)$ is given
-approximately as a functional of $t(\vr)$,
-then there are only two independent correlations,
-e.g., $c(\vr)$ and $t(\vr)$, which can be determined
-by the following two equations.
 
-The first equation is the Ornstein-Zernike (OZ) relation
+
+If the bridge function, $B(r)$, is given
+approximately as a functional of $t(r)$,
+then there are only two independent correlation functions,
+e.g., $c(r)$ and $t(r)$, which can be determined
+by the following two equations:
+%
+the Ornstein-Zernike (OZ) relation
 \begin{equation}
-  t(\vr) = \rho \, (c * h)(\vr)
-         = \rho \, [c * (t + c)] (\vr),
+  t(r) = \rho \, (c * h)(r)
+       = \rho \, [c * (t + c)] (r),
   \label{eq:oz}
 \end{equation}
-where $*$ denotes a convolution
-\[
-  (a * b)(\vr) = \int d\vr' \, a(\vr') \, b(\vr - \vr').
-\]
-
-The second equation is the closure
+%
+with $*$ denoting a convolution
+$(a * b)(\vr) = \int d\vr' \, a(\vr') \, b(\vr - \vr')$,
+%
+and the closure
+%
 \begin{align}
-  c(\vr)
-  &= \exp[-\beta \phi(\vr)] \, y(\vr) - 1 - t(\vr) \notag \\
-  &= [f(\vr) + 1] \exp[t(\vr) + B(\vr)] - 1 - t(\vr).
+  c(r)
+  &= e^{-\beta \phi(r)} \, y(r) - 1 - t(r) \notag \\
+  &= [f(r) + 1] \, e^{t(r) + B(r)} - 1 - t(r).
   \label{eq:closure}
 \end{align}
-where
-\[
-  f(\vr) \equiv \exp[-\beta \phi(\vr)] - 1.
-\]
-
-
-
-\subsection{Viral-route chemical potential}
-
-We now illustrate the method by giving a formula for
-the chemical potential in the virial route.
 %
-The excess (non-ideal-gas) chemical potential, $\muex$, can be computed from
-thermodynamic integration
+where $f(r) \equiv e^{-\beta \phi(r)} - 1$.
+
+
+
+Two commonly used closures are
+the Percus-Yevick (PY)
+and hypernetted chain (HNC).
+%
+In the former case,
+%
 \begin{align}
-  -\beta \muex
-  &=
-  -\int_0^1 d\xi \langle \beta \Delta U \rangle_\xi
-  \notag \\
-  &=
-  -\int_0^1 d\xi \,
-    \int d\vr \,
-    \beta \, \partial_\xi \phi(\vr; \xi) \, \rho \, g(\vr, \xi),
-  \label{eq:muti}
+y(r) = 1 + t(r),
+\label{eq:PY}
 \end{align}
 %
-where $\xi$ is the charging parameter in a system with
-a specially designated particle 1;
-$\xi = 0$ means that particle 1 does not interact with other particles;
-and $\xi = 1$ means that particle 1 interacts normally,
-and is indistinguishable from other particles.
+or, equivalently,
+$B(r) = \log[1 + t(r)] - t(r)$.
 %
-Here, $\Delta U = \sum_{i = 2}^N \phi(r_{1i})$
-is the interaction energy of particle 1 and the rest of the particles.
+In the latter case,
 %
-Traditionally, $\xi$ is often chosen such that $\phi(\vr;\xi) = \phi(\vr) \, \xi$.
+\begin{align}
+y(r) = \exp t(r),
+\label{eq:HNC}
+\end{align}
 %
-Here, however, we use a computationally more convenient form:
+or, equivalently,
+$B(r) = 0$.
+
+
+
+Many interpolations of the above two closures
+improve the accuracy.
+%
+Among them, we only consider
+the Hutchinson-Conkie (HC) closure\cite{hutchinson1971}:
+%
 \begin{equation}
-  f(\vr;\xi) = f(\vr) \, \xi,
-\label{eq:fxi}
+y(r) = \left[1 + s \, t(r)\right]^{1/s},
+\label{eq:HC}
 \end{equation}
-i.e.,
-$u(\vr; \xi) = -\log\Big[ 1 + \xi \big(e^{-\beta \phi(\vr)} -1\big) \Big]/\beta$.
-This form is applicable to the hard-sphere fluid.
+with $s = 0.84$.
 
-After some algebra, we get
+
+
+
+
+\subsection{
+\label{sec:cvroutes}
+Compressibility and virial routes}
+
+
+
+
+We first show
+how to compute chemical potential
+from the compressibility and virial routes.
+%
+Chemical potential is related to pressure by
 %
 \begin{align}
-  -\beta \muex =
-  \rho \int d\vr \left[
-    c(\vr) - B(\vr) - \frac{1}{2} t(\vr) h(\vr)
-  \right]
-  \notag \\
-    -
-  \int_0^1 d\xi \,
-  \rho \int d\vr
-    \, h(\vr; \xi) \, \partial_\xi B(\vr; \xi).
-  \label{eq:muexact}
-\end{align}
-%
-In the second term on the right hand side,
-both $h(\vr; \xi)$ and $B(\vr; \xi)$ depend on $\xi$,
-and
-$h(\vr; 1) = h(\vr)$,
-$B(\vr; 1) = B(\vr)$.
-%
-The classic formula\cite{morita1958,morita1959,morita1960,singer1985}
-for the HNC closure
-corresponds to the case of $B \equiv 0$:
-%
-\begin{align}
-  -\beta \muex^{,\; \mathrm{HNC}} =
-  \rho \,
-  \int d\vr \left[
-    c(\vr) - \frac{1}{2} t(\vr) h(\vr)
-  \right].
-  \label{eq:muhnc}
-\end{align}
-
-
-The first term on the right hand side of \eqref{eq:muexact} is readily obtained,
-whereas the second requires an integral over the charging parameter $\xi$.
-%
-The direct way of evaluating the integral
-would be to solve the integral equation for a few $\xi$ in $[0, 1]$,
-and then to carry a numerical integration.
-%
-If, however, $\partial_\xi B(\vr; \xi)$ varies regularly with $\xi$,
-we can approximate the term by
-\begin{equation}
-  \int_0^1 d\xi \int d\vr
-    \, h(\vr; \xi) \, \partial_\xi B(\vr; \xi)
-  \approx
-  \gamma \, \int d\vr \, h(\vr) \, B(\vr),
-  \label{eq:approxhB}
-\end{equation}
-where $\gamma$ can be approximately determined from
-%
-\begin{equation}
-  \gamma
+\partial_\rho \mu^\mathrm{ex}
 =
-  \frac{ \int h(\vr) \partial_\xi B(\vr; 1) \, d\vr}
-  {\int h(\vr) \, \partial_\xi B(\vr; 1) \, d\vr
-   +\int B(\vr) \, \partial_\xi  h(\vr; 1) \, d\vr}.
-   \label{eq:gamma_muv}
-\end{equation}
-
-
-We now give a simple argument for \eqref{eq:approxhB} and \eqref{eq:gamma_muv},
-and a generalized derivation can be found in Sec. \ref{sec:genmethod}.
-%
-If we assume that
-\begin{align}
-  B(\vr; \xi) &\approx B(\vr) \,  \xi^{e_1},
-  \label{eq:approxBr} \\
-  h(\vr; \xi) &\approx h(\vr) \, \xi^{e_2},
-  \label{eq:approxhr}
-\end{align}
-then $\gamma$ in \eqref{eq:approxhB} should be $e_1/(e_1 + e_2)$,
-a value that can be correctly given by \eqref{eq:gamma_muv}.
-%
-Since \eqref{eq:gamma_muv} is an averaged formula,
-we expect it to work even when \eqref{eq:approxBr} and \eqref{eq:approxhr}
-fail in some $\vr$ region.
-%
-According to \eqref{eq:fxi},
-the exponent $e_i$ gives roughly the number of $f$-bonds
-adjacent to particle 1 in the diagram.
-%
-Thus, in the low density limit,
-$e_1 = 2$ and $e_2 = 1$,
-because the lowest order diagrams in
-$B(\vr; \xi)$ and $h(\vr; \xi)$
-are
-  \begin{tikzpicture}[baseline=-1.0mm]
-    \newcommand{\sz}{2.0mm}
-    \node (r1) at (-\sz, -\sz) [whitedot]{};
-    \node (r2) at ( \sz, -\sz) [whitedot]{};
-    \node (r3) at ( \sz,  \sz) [blackdot]{};
-    \node (r4) at (-\sz,  \sz) [blackdot]{};
-    \draw (r1) -- (r4) -- (r3) -- (r2) -- (r4) (r1) -- (r3);
-  \end{tikzpicture}
-and
-  \begin{tikzpicture}[baseline=-1.0mm]
-    \newcommand{\sz}{2.0mm}
-    \node (r1) at (-\sz, 0) [whitedot]{};
-    \node (r2) at ( \sz, 0) [whitedot]{};
-    \draw (r1) -- (r2);
-  \end{tikzpicture}
-respectively.
-%
-This gives the value $\gamma = 2/3$,
-for it balances the contribution of the diagram
-  \begin{tikzpicture}[baseline=-1.0mm]
-    \newcommand{\sz}{2.0mm}
-    \node (r1) at (-\sz, -\sz) [whitedot]{};
-    \node (r2) at ( \sz, -\sz) [blackdot]{};
-    \node (r3) at ( \sz,  \sz) [blackdot]{};
-    \node (r4) at (-\sz,  \sz) [blackdot]{};
-    \draw (r1) -- (r2) -- (r3) -- (r4) -- (r1) -- (r3) (r2) -- (r4);
-  \end{tikzpicture}
-on both sides of \eqref{eq:muexact}.
-
-
-
-\subsection{\label{sec:dxi}Expansion of the charging parameter}
-
-
-We now show how to compute $\partial_\xi B(\vr; 1)$ and $\partial_\xi h(\vr; 1)$,
-which are required in the determination of $\gamma$ in \eqref{eq:gamma_muv},
-%
-Under the charging parameter, \eqref{eq:oz} is modified as
-\[
-  t(\vr; \xi) = \rho \, c(\vr; \xi) * h(\vr),
-\]
-So
-\begin{equation}
-  \partial_\xi t(\vr; 1)
-  = \rho \, [\partial_\xi c * (t + c)](\vr, 1).
-  \label{eq:ozxi}
-\end{equation}
-
-For the closure, we have
-\begin{align}
-  \partial_\xi c(\vr; 1)
-  = [f(\vr) + 1] \, (\partial y/\partial t) \, \partial_\xi t(\vr; 1)
-  \notag \\
-  + \partial_\xi f(\vr; 1) \, y(\vr) - \partial_\xi t(\vr; 1).
-  \label{eq:closurexi}
-\end{align}
-
-Once we have solved $c(\vr)$ and $t(\vr)$
-from \eqref{eq:oz} and \eqref{eq:closure},
-%
-we can then solve $\partial_\xi c(\vr; 1)$ and $\partial_\xi t(\vr; 1)$
-from \eqref{eq:ozxi} and \eqref{eq:closurexi}, by, e.g., direct iteration.
-Then
-\begin{align*}
-  \partial_\xi B(\vr; 1) &= (\partial B/\partial t) \, \partial_\xi t(\vr; 1), \\
-  \partial_\xi h(\vr; 1) &= \partial_\xi c(\vr; 1) + \partial_\xi t(\vr; 1).
-\end{align*}
-
-
-
-\subsection{\label{sec:genmethod}Generalized method}
-
-
-
-Let us now derive \eqref{eq:gamma_muv} from a more general method.
-%
-We start from differentiating \eqref{eq:muti}:
-%
-\begin{align}
-  -\partial_\xi ( \beta \muex )
-  &=
-  -\rho \, \int d\vr
-    \, \beta \, \partial_\xi u \, g,
-    \notag \\
-  &=
-  \rho \, \int d\vr \,
-    \big[
-    \partial_\xi c - \partial_\xi B
-  - h \, \partial_\xi (t + \partial_\xi B )
-    \big],
-  \label{eq:dmuti}
+(\partial_\rho P^\mathrm{ex}) / \rho,
+\label{eq:mu_P}
 \end{align}
 %
-where we have omitted ``$(\vr; \xi)$'' for convenience.
-
-We now propose a trial expression
+where the superscript ``ex''
+means the excess (non-ideal-gas) part.
+%
+Thus,
+we have
 %
 \begin{align}
-  - \beta \mutex
-  &=
-  \rho \, \int d\vr \,
-    \left(
-    c
-    - \, B
-    - \tfrac{1}{2} \, h t
-    - \Delta
-    \right),
-  \label{eq:mutrial}
-\end{align}
-%
-with $\Delta = \Delta(\vr)$ being some correction function.
-
-
-We wish to choose a $\Delta$ such that \eqref{eq:dmuti} is true:
-%
-\[
-  \partial_\xi \muex =  \partial_\xi \mutex.
-\]
-%
-This yields
-\begin{align}
-  \int d\vr \, \partial_\xi \Delta
+\mu^\mathrm{ex}
 =
-  \int d\vr \, h \, \partial_\xi B.
-  \label{eq:corr_muv}
+\int_0^\rho
+  \frac{ d\rho' }{ \rho' }
+  \frac{ \partial P(\rho') }{ \partial \rho' }.
+\label{eq:mu_intrho}
 \end{align}
 %
-If we further assume a linear dependence: $\Delta = \gamma_1 \Delta_1$,
-then
+
+
+
+Particularly,
+for the compressibility route,
+we have
+%
 \begin{align}
-  \gamma_1
+\beta \, \partial_\rho P_c^\mathrm{ex}
 =
-  \frac
-  {
-    \int \, d\vr \, h \, \partial_\xi B
-  }
-  {
-    \int \, d\vr \, \partial_\xi \Delta_1
-  },
-  \label{eq:gamma_virial}
+-\rho \, \int d\vr \, c(r),
+\label{eq:dP_c}
 \end{align}
 %
-where we have used $h \, \partial_\xi t = t \, \partial_\xi h = \frac{1}{2} \partial_\xi (t h)$.
+where,
+$\beta = 1/(k_B \, T)$
+is the inverse temperature
+(with $k_B$ being the Boltzmann constant).
 %
-If $\Delta_1 = h B$, then we recover \eqref{eq:gamma_muv}.
-%
-Note we can alternatively determine $\gamma$ by the variational principle,
-which yields a slightly different formula.
-%
-We should, however, not consider this possibility below.
-
-
-
-\subsection{Compressibility-route chemical potential}
-
-We now extend the above general method to the compressibility route.
-%
-This requires the derivatives with respect to the density, $\rho$,
-instead of $\xi$.
-%
-We insist that the exact relation
-\begin{equation}
-  -\partial_\rho (\beta \muex) = \int d\vr \, c(\vr),
-  \label{eq:mu_compr}
-\end{equation}
-is true also for $\mutex$.
-%
-Then, from \eqref{eq:mutrial}, we get
+Using this in Eq. \eqref{eq:mu_P}
+yields
 %
 \begin{equation}
-  \int \, d\vr \, (1 + \rho \, \partial_\rho) \, \Delta
+\beta \, \partial_\rho \mu_c^\mathrm{ex}
 =
-  I_\rho,
-  \label{eq:corr_muc}
+-\int d\vr \, c(r)
+\label{eq:dmu_c}
 \end{equation}
 %
-where
-\begin{align*}
-I_\rho
+By integrating over $\rho$,
+we get the compressibility-route chemical potential:
+%
+\begin{equation}
+\beta \, \mu_c^\mathrm{ex}
+=
+-\int_0^\rho d \rho' \int d\vr \, c(r).
+\label{eq:mu_c}
+\end{equation}
+%
+Note that $c(r)$ implicitly depends on the density, $\rho'$.
+
+
+
+Similarly, for the virial route,
+we have
+%
+\begin{align}
+\beta \, P_v^\mathrm{ex}
 &=
-\int \, d\vr \,
-  \left[
-  \frac{1}{2} \, \rho \, (c \, \partial_\rho t - t \, \partial_\rho c)
-- \frac{1}{2} \, t \, h
-+ \rho \, h \, \partial_\rho B
-- B
-  \right],
-\end{align*}
-%
-If we assume a linear dependence:
-%
-$\Delta = \gamma_2 \, \Delta_2$,
-then
-\begin{equation}
-  \gamma_2
-=
-  \frac
-  {
-    I_\rho
-  }
-  {
-    \int d\vr \, (1 + \rho \, \partial_\rho) \Delta_2
-  },
-  \label{eq:gamma_muc}
-\end{equation}
-where $\Delta_2$ is set to $B$ in non-HNC cases.
-
-Let us now study the integral $I_\rho$.
-%
-By Fourier transform, we can rewrite it as
-\begin{align*}
-  I_\rho
-&=
-  \frac{1}{2} \int \dvk
-  \rho^2 \,
-  \tilde{h}^2 \,
-  \partial_\rho \tilde{c}
-  + \int d\vr \,
-  (\rho \, h \, \partial_\rho B - B).
-\end{align*}
-%
-The corresponding diagrammatic expansion,
-assuming the exact bridge function, $B(\vr)$, is
-\begin{align*}
-I_\rho
-&=
-  \int d\vr \,
-  \left(
-  % diamond
-  \frac{1}{2}
-  \begin{tikzpicture}[baseline=-1.3mm]
-    \newcommand{\sz}{2.6mm}
-    \node (r1) at (-\sz,    0) [whitedot]{};
-    \node (r2) at ( \sz,    0) [whitedot]{};
-    \node (r3) at (   0,  \sz) [blackdot]{};
-    \node (r4) at (   0, -\sz) [blackdot]{};
-    \draw (r1) -- (r4) -- (r2) -- (r3) -- (r1) -- (r2);
-  \end{tikzpicture}
-+
-  \begin{tikzpicture}[baseline=-1.0mm]
-    \newcommand{\sz}{2.0mm}
-    \node (r1) at (-\sz, -\sz) [whitedot]{};
-    \node (r2) at ( \sz, -\sz) [whitedot]{};
-    \node (r3) at ( \sz,  \sz) [blackdot]{};
-    \node (r4) at (-\sz,  \sz) [blackdot]{};
-    \draw (r1) -- (r4) -- (r3) -- (r2) -- (r4) (r2) -- (r1) -- (r3);
-  \end{tikzpicture}
--
-\frac{1}{2}
-  \begin{tikzpicture}[baseline=-1.0mm]
-    \newcommand{\sz}{2.0mm}
-    \node (r1) at (-\sz, -\sz) [whitedot]{};
-    \node (r2) at ( \sz, -\sz) [whitedot]{};
-    \node (r3) at ( \sz,  \sz) [blackdot]{};
-    \node (r4) at (-\sz,  \sz) [blackdot]{};
-    \draw (r1) -- (r4) -- (r3) -- (r2) -- (r4) (r1) -- (r3);
-  \end{tikzpicture}
-+ \cdots \right)
+-\frac{ \rho^2 } { 2 \, D }
+\, \int d\vr \, r \phi'(r) \, g(r)
 \notag \\
-&= \rho^{-1} \,
-  \begin{tikzpicture}[baseline=-1.0mm]
-    \newcommand{\sz}{2.0mm}
-    \node (r1) at (-\sz, -\sz) [whitedot]{};
-    \node (r2) at ( \sz, -\sz) [blackdot]{};
-    \node (r3) at ( \sz,  \sz) [blackdot]{};
-    \node (r4) at (-\sz,  \sz) [blackdot]{};
-    \draw (r1) -- (r4) -- (r3) -- (r2) -- (r4) (r2) -- (r1) -- (r3);
-  \end{tikzpicture} + \cdots,
-  %\label{eq:Iqhnc}
-\end{align*}
-%
-where the diagrams are implicitly labeled, and hence
-have no additional symmetry numbers.
-%
-Thus, to cancel this term in the low density limit,
-we can set $\Delta_2 = h\, B$, with $\gamma_2 = 2/3$,
-as given by \eqref{eq:gamma_muc}.
-%
-In practice, for the hard-sphere fluid,
-we find it to be more effective to set
-$\Delta_2 = B$, when $B$ does not vanish.
-
-
-
-In the HNC case, $B(\vr) = 0$, and
-\[
-I_\rho
-=
-  \frac{1}{2} \, \rho^{-1} \,
-  \begin{tikzpicture}[baseline=-1.3mm]
-    \newcommand{\sz}{2.6mm}
-    \node (r1) at (-\sz,    0) [whitedot]{};
-    \node (r2) at ( \sz,    0) [blackdot]{};
-    \node (r3) at (   0,  \sz) [blackdot]{};
-    \node (r4) at (   0, -\sz) [blackdot]{};
-    \draw (r1) -- (r4) -- (r2) -- (r3) -- (r1) -- (r2);
-  \end{tikzpicture}
-  + \cdots,
-\]
-which does not vanish.
-%
-This means that the classic formula \eqref{eq:muhnc}
-is applicable only to the virial route
-but not to the compressibility route.
-%
-To make a correction, we set
-\begin{equation}
-  \Delta_2^{\mathrm{HNC}} = c - (1 + \rho f*f) f,
-  \label{eq:Delta2_hnc}
-\end{equation}
-in place of $B$.
-
-A natural extension is to design a $\Delta$ that simultaneously satisfies
-both \eqref{eq:corr_muv} and \eqref{eq:corr_muc}.
-%
-That is, we set
-\begin{equation}
-  \Delta = \gamma_1 \, \Delta_1 + \gamma_2 \, \Delta_2,
-  \label{eq:mucv_consistent}
-\end{equation}
-and then solve $\gamma_1$ and $\gamma_2$.
-%
-In practice,
-the chemical potential resulting from this equation
-is rather similar to that from \eqref{eq:corr_muc},
-in the case of three-dimensional hard-sphere fluid.
-
-
-
-Another possibility is to use a trial functional form
-different from \eqref{eq:mutrial}.
-%
-Using the compressibility-route for example,
-we can consider a linear interpolation
-of $f$,
-$\rho \, (f*f) f =
-  \begin{tikzpicture}[baseline=-1.4mm]
-    \newcommand{\sz}{2.0mm}
-    \node (r1) at (-\sz, -\sz) [whitedot]{};
-    \node (r2) at ( \sz, -\sz) [whitedot]{};
-    \node (r3) at (   0, 0.5*\sz) [blackdot]{};
-    \draw (r1) -- (r2) -- (r3) -- (r1);
-  \end{tikzpicture}$,
-$c$, and $\rho \, \partial_\rho \, c$:
-\begin{align}
-  -\beta \, \mutex
-=
-  \int \, d\vr \,
-  \left\{
-  \frac{\rho}{2} \, (f + c)
-+ \frac{\rho^2}{12} \, \Big[(f*f) \, f - \partial_\rho c\Big]
-  \right\},
-  \label{eq:muc_series}
-\end{align}
-which satisfies the boundary conditions:
-\begin{equation}
-  \begin{split}
-  - \partial_{\rho}( \beta \, \mutex )
-  \hphantom{ \Big|_{\rho = 0} }
 &=
-  \int d\vr \, c,
-%
-  \\
-  - \partial_{\rho \rho}( \beta \, \mutex )
-  \hphantom{ \Big|_{\rho = 0} }
-&=
-  \int d\vr \, \partial_\rho c,
-  \\
-%
-    - \partial_\rho( \beta \, \mutex )
-  \Big|_{\rho = 0}
-&=
-  \int d\vr \, f,
-%
-  \\
-  - \partial_{\rho \rho}( \beta \, \mutex )
-  \Big|_{\rho = 0}
-&=
-  \int d\vr \, f \, (f * f).
-  \end{split}
-  \label{eq:muc_boundary}
-\end{equation}
-
-
-% Alternatively, we can use a rational approximation
-% \begin{align}
-%   -\beta \, \mutex
-% =
-%   \frac{ A_1 \rho + A_2 \rho^2 + A_3 \rho^3 }
-%   {1 + B_1 \rho },
-%   \label{eq:mut_rational}
-% \end{align}
-% and solve the coefficients $A_1$, $A_2$, $A_3$, and $B_1$
-% from \eqref{eq:muc_boundary}.
-% %\begin{align}
-% %  -\beta \, \mutex
-% %=
-% %  \int \, d\vr \,
-% %  \left[
-% %    \rho \, f
-% %+ \frac{\rho^2}{2} \, (f*f) \, f
-% %  \right]
-% %+ \frac{ \rho \, C_2^2 }
-% %  { C_2 + \rho \, \partial_\rho C_2 },
-% %  \label{eq:muc_power}
-% %\end{align}
-% %with
-% %\begin{equation}
-% %  C_2 \equiv \int d\vr \, \big[ c - (1 + \rho f * f) f\big].
-% %  \label{eq:C2pdef}
-% %\end{equation}
-
-
-
-\subsection{\label{sec:c-pres}Compressibility-route pressure}
-
-The above techniques can be used to
-compute the compressibility-route pressure.
-%
-We now construct a trial function
-\begin{align}
-  \beta \, \Pex
-&=
- -\frac{ \rho^2 }{ 2 }
- \int d\vr \, (c - h c - \Delta)
- \notag \\
-& \quad + \int \dvk \,
-  \big[
-    \log( 1 - \rho \tilde{c} )
-    + \rho \tilde{c}
-  \big].
-  \label{eq:Ptrial}
+\frac{ \rho^2 } { 2 \, D }
+\, \int d\vr \, r f'(r) \, y(r),
+\label{eq:P_v}
 \end{align}
 %
-The case of $\Delta = 0$ recovers the exact formula
-for the PY closure\cite{baxterpressure}.
-
-Differentiating with respect to $\rho$ yields
+where $D$ is the dimension.
 %
-\begin{align}
-  \partial_\rho ( \beta \, \Pex )
-&=
- -\rho \int d\vr \, c
- \notag \\
-&\hphantom{=}
- - J_\rho
- + \int d\vr \,
-  \left(
-    \rho + \frac{ \rho^2 }{ 2 }  \, \partial_\rho
-  \right) \, \Delta,
-  \label{eq:dPtrial}
-\end{align}
-%
-where
-\begin{align*}
-  J_\rho
-  &= \frac{\rho^2}{2}
-  \big(
- \partial_\rho c
- - c \partial_\rho t
- + t \partial_\rho c
-\big)
-\notag \\
-&= \frac{\rho^2}{2}
- \Big\{
- (1+ f)
- \big[
-  (1+t) \partial_\rho w
-  -w\partial_\rho t
-  \big]
- \Big\},
-\end{align*}
-and $w = y - 1 - t$.
-%
-Thus, to ensure the exact relation
-\[
-\partial_\rho (\beta \Pex)
-= -\rho \int d\vr \, c,
-\]
-we set
-\[
-  \int d\vr \,
-  \left(\rho + \frac{\rho^2}{2} \partial_\rho\right) \Delta
-  = J_\rho.
-\]
-With
-$\Delta = \theta \, \Delta_3$,
+By using Eq. \eqref{eq:mu_P},
 we get
-\begin{equation}
-  \theta
-=
-  \frac
-  {
-    J_\rho
-  }
-  {
-    \int d\vr \,
-    \left( \rho + \frac{\rho^2}{2} \, \partial_\rho \right)
-    \Delta_3
-  }.
-  \label{eq:theta}
-\end{equation}
 %
-Particularly, we choose $\Delta_3 = (1+ f) (1 + t) w$.
-
-Similar to the case of chemical potential,
-we have an interpolation formula
-\begin{equation}
-\beta \Pex = -\int d\vr \,
+\begin{align}
+\beta \, \partial_\rho \mu_v^\mathrm{ex}
+&=
+\frac{ 1 } { D }
+\, \int d\vr \, r f'(r)
 \left[
-  \frac{3 \rho^2}{20} f
-+ \frac{7 \rho^2}{20} c
-+ \frac{\rho^3}{30} f (f * f)
-- \frac{\rho^3}{20} \partial_\rho c
+  y(r)
+  +
+  \frac{\rho}{2} \, \partial_\rho y(r)
 \right].
-\label{eq:P_series}
-\end{equation}
+\label{eq:dmu_v}
+\end{align}
 %
-which satisfies the boundary conditions
-% Alternatively, we can set
-% \begin{equation}
-%   \beta \Ptex
-% =
-% \frac{ A_2 \rho^2 + A_3 \rho^3 + A_4 \rho^4 }
-% { 1 + B_1 \rho },
-% \label{eq:Pt_rational}
-% \end{equation}
-% and solve $A_2$, $A_3$, $A_4$, and $B_1$ from
-% the boundary conditions
+Thus, the virial-route chemical potential reads
 %
 \begin{equation}
-  \begin{split}
-  - \partial_{\rho}( \beta \, \Ptex )
-  \hphantom{ \Big|_{\rho = 0} }
-&=
-  \rho \, \int d\vr \, c,
-  \\
-%
-  - \partial_{\rho \rho}( \beta \, \Ptex )
-  \hphantom{ \Big|_{\rho = 0} }
-&=
+\beta \, \mu_v^\mathrm{ex}
+=
+\frac{1}{D}
+\int_0^\rho d\rho'
   \int d\vr \,
-    (1 + \rho \, \partial_\rho) \, c,
-  \\
-%
-  - \partial_\rho( \beta \, \Ptex )
-  \Big|_{\rho = 0}
-&=
-  \rho \, \int d\vr \, f,
-  \\
-%
-  - \partial_{\rho \rho}( \beta \, \Ptex )
-  \Big|_{\rho = 0}
-&=
-  \int d\vr \,
-  [1 + 2 \, \rho \, (f*f) ] \, f.
-  \end{split}
-  \label{eq:Pc_boundary}
+    r f'(r) \,
+    \left[
+    y(r) + \frac{\rho'}{2} \partial_{\rho'} y(r)
+    \right].
+\label{eq:mu_v}
 \end{equation}
 
 
 
 
 
+\subsubsection{Approximate functional}
 
-\subsection{Virial series}
 
 
-We computed the reference values from the virial series.
+
+
+The $\rho$ integrals
+in Eqs. \eqref{eq:mu_c} and \eqref{eq:mu_v}
+are cumbersome.
 %
-We write pressure as
-\[
-  \beta P = \sum_{n = 1}^{\infty} B_n \, \rho^n.
-\]
-%
-Using $\partial_\rho P = \rho \, \partial_\rho \mu$,
-we get an expression of chemical potential
-\begin{equation}
-  \beta \muex = - \sum_{n = 2}^\infty \frac{n B_n}{n - 1} \rho^{n - 1}.
-  \label{eq:muvirialseries}
-\end{equation}
-%
-In the HNC case for the three-dimensional hard-sphere fluid,
-the virial diverges at high orders.
-%
-Thus, we used the truncated series at two orders
-and then take the average.
-%
-For the compressibility route,
-we used the average of the 7th and 9th order results.
-%
-For the virial route,
-we used the average of the 12th and 13th order results.
+Below we make further approximations
+to avoid them.
 
 
 
-\subsection{\label{sec:sc} Self-consistent integral equation}
-
-
-
-One application of computing chemical potential and pressure
-is to provide criteria that can be used
-to adjust parameters in self-consistent integral equations.
+We first assume that the chemical potential satisfies
 %
-Without the exact bridge function, integral equations
-are inevitably approximate, and thus contains some self-inconsistency.
+\begin{align}
+  \beta \muex
+  =
+  -\rho \, \int d\vr \,
+    \left[
+        c(r) - B(r)
+      - \frac{1}{2} \, h(r) \, t(r)
+      - \gamma \, \Delta(r)
+    \right],
+  \label{eq:muex_trial}
+\end{align}
 %
-By enforcing the self-consistency
-of some thermodynamic quantity,
-we can usually improve the accuracy of integral equations.
-
-For the pressure, we have
-\begin{equation}
-  \partial_\rho \big[ \beta P^{(c)} \big] = 1 - \rho \int c(\vr) \, d\vr,
-  \label{eq:dPcomp}
-\end{equation}
-for the compressibility route, with $D$ being the dimension, and
-%
-\begin{equation}
-  \beta P^{(v)} = \rho + \frac{\rho^2}{2D} \int \vr \cdot \nabla f(\vr) y(\vr) \, d\vr,
-  \label{eq:Pvirial}
-\end{equation}
-for the virial route.
-%
-A more convenient form for direct comparison with \eqref{eq:dPcomp} is
-\begin{equation}
-  \partial_\rho \big[ \beta P^{(v)} \big] =
-    \frac{ 2\beta P^{(v)} }{ \rho } - 1
-    + \frac{\rho^2}{2D} \int \vr \cdot \nabla f(\vr) \, \partial_\rho y(\vr) \, d\vr,
-  \label{eq:dPvirial}
-\end{equation}
-where $\partial_\rho y(\vr)$ can be computed using a technique similar to that in Sec. \ref{sec:dxi}.
-%
-In a self-consistent integral equation,
-we choose parameters such that
-$\partial_\rho P^{(c)}$
-is equal to
-$\partial_\rho P^{(v)}$.
-
-
-Since we are interested in the chemical potential here,
-it would be better if we compare $\mu$, instead of $P$, from the two routes.
-%
-Using \eqref{eq:dPcomp} and $\partial_\rho P = \rho \, \partial_\rho \mu$,
-we have, for the compressibility route,
-\begin{equation}
-  -\partial_\rho \big[ \beta \mu^{(c)} \big]
-  =  -\rho^{-1} + \int c(\vr) \, d\vr.
-  \notag
-\end{equation}
-For the virial route, we have
-\begin{equation}
-  -\partial_\xi \big[ \beta \mu^{(v)} \big]
-  =  \rho \int \partial_\xi f(\vr; 1) \, y(\vr) \, d\vr.
-  \notag
-  \label{eq:dmudxi}
-\end{equation}
-
-Again, for better comparison,
-we insist the agreement of
-\begin{equation}
-  -\partial^2_{\rho \, \xi} \big[ \beta \mu^{(c)} \big]
-  = \int \partial_\xi c(\vr; 1) \, d\vr,
-  \label{eq:ddmuc}
-\end{equation}
+where
+$\Delta(r)$ is a trial function,
 and
+$\gamma$ is a parameter to be determined.
+%
+This functional form is inspired by
+the exact virial- or chemical-potential-route formula
+for the HNC equation\cite{
+morita1960, morita1960I, singer1985}:
+%
 \begin{equation}
-  -\partial^2_{\xi \, \rho} \big[ \beta \mu^{(v)} \big]
-  =  \int
-  \partial_\xi f(\vr; 1) \,
-  (1 + \rho \, \partial_\rho) \, y(\vr)
-  \, d\vr.
-  \label{eq:ddmuv}
+  \beta \muex
+  =
+  -\rho \, \int d\vr \,
+    \left[
+      c(r) - \frac{1}{2} \, h(r) \, t(r)
+    \right].
+  \label{eq:muex_hnc}
+\end{equation}
+
+
+
+
+
+\subsubsection{Parameter determination}
+
+
+
+
+
+To find a proper $\gamma$,
+we insist that the trial functional form
+given by Eq. \eqref{eq:muex_trial}
+also satisfies
+Eq. \eqref{eq:dmu_c} or \eqref{eq:dmu_v},
+%
+This condition demands
+%
+\begin{align}
+\gamma
+=
+\frac{
+  Y(r) + (1 + \rho \, \partial_\rho) \, X(r)
+}
+{
+  (1 + \rho \, \partial_\rho) \, \Delta(r)
+},
+\label{eq:gamma_murho}
+\end{align}
+%
+where
+%
+\begin{align}
+X(r) = c(r) - B(r) - \frac{1}{2} h(r) \, t(r),
+\label{eq:X}
+\end{align}
+%
+and
+\begin{align}
+Y_c(r) = -c(r)
+\label{eq:Yc}
+\end{align}
+for the compressibility route, or
+\begin{align}
+Y_v(r) = \frac{ 1 }{ D }
+\int d\vr \, r f'(r) \,
+\left[
+	y(r) + \frac{\rho}{2} \, \partial_\rho y(r)
+\right]
+\label{eq:Yv}
+\end{align}
+for the virial route.
+
+
+
+
+
+\subsubsection{Correction function}
+
+
+
+
+We consider two possibilities for
+the correction function, $\Delta(r)$.
+%
+The first candidate is
+%
+\begin{equation}
+\Delta(r) = h(r) \, B(r).
+\label{eq:Delta_hB}
 \end{equation}
 %
+In the low density limit,
+one can show by graphical analysis that
+$\gamma$ from Eq. \eqref{eq:gamma_murho}
+is $2/3$.
 
-In Appendix \ref{apd:sc},
-  we describe a practical procedure
-  to adjust parameters in integral equations
-  to enforce the above consistency conditions.
+
+
+The second candidate is
+%
+\begin{equation}
+\Delta(r) = -B(r).
+\label{eq:Delta_B}
+\end{equation}
+
+
+
+However,
+for the HNC equation,
+$B(r) \equiv 0$,
+and in order to compute
+the compressibility-route value,
+we use an effective bridge function
+%
+\begin{equation}
+B^*(r) = \log\left[ 1 + t(r) \right] - t(r),
+\label{eq:Beff_hnc}
+\end{equation}
+%
+and use $B^*(r)$ in place of $B(r)$
+in Eqs.
+\eqref{eq:muex_trial},
+\eqref{eq:X},
+\eqref{eq:Delta_hB},
+and
+\eqref{eq:Delta_B}.
+%
+%\begin{equation}
+%\Delta^\mathrm{HNC}(r)
+%=
+%c(r) - \left[1 + \rho \, (f * f)(r)\right] \, f(r).
+%\label{eq:Delta_hnc}
+%\end{equation}
+
+
+
+
+
+
+\subsection{
+\label{sec:xiroute}
+Chemical-potential route}
+
+
+
+
+
+We now turn to the chemical-potential route.
+%
+First, we need to
+select a designated particle 1 from the fluid
+and define a charging parameter, $\xi$,
+to control its interaction with other particles.
+%
+When $\xi = 0$,
+particle 1 does not interact with other particles.
+%
+When $\xi = 1$,
+particle 1 interacts normally with other particles.
+
+
+
+Then,
+by thermodynamic integration,
+we have
+%
+\begin{align}
+\partial_\xi ( \beta \mu^\mathrm{ex} )
+&=
+\langle \partial_\xi (\beta \Delta U) \rangle_\xi
+\notag \\
+&=
+\rho \, \int d\vr \,
+\beta \, \partial_\xi \phi(r; \xi) \, g(r; \xi),
+\label{eq:dmuti0}
+\end{align}
+%
+where,
+$\Delta U = \sum_{i = 2}^N \phi(r_{1i}; \xi)$
+is the interaction energy of particle 1
+and other particles.
+%
+Integrating over $\xi$ yields
+the chemical-potential-route formula:
+%
+\begin{align}
+\beta \, \mu^\mathrm{ex}
+&=
+\rho \int_0^1 d\xi \,
+\int d\vr \, \beta \, \partial_\xi \phi(r; \xi) \,
+g(r; \xi)
+\notag \\
+&=
+-\rho \int_0^1 d\xi \,
+\int d\vr \, \partial_\xi f(r; \xi) \,
+y(r; \xi).
+\label{eq:muti0}
+\end{align}
+
+
+%\subsubsection{Partial integration}
+
+The $\xi$ integral can be partially avoided.
+%
+After partial integration and some algebra,
+Eq. \eqref{eq:dmuti0} becomes
+%
+\begin{align}
+\partial_\xi ( \beta \mu^\mathrm{ex} )
+&=
+-\rho \, \partial_\xi \int d\vr \,
+    \left[
+      c(r; \xi)
+    - B(r; \xi)
+    - \tfrac{1}{2} h(r; \xi) \, t(r; \xi)
+    \right]
+\notag \\
+&\phantom{=}
+  +\rho \, \int d\vr \,
+  h(r; \xi) \,
+  \partial_\xi B(t; \xi),
+\label{eq:dmuti}
+\end{align}
+%
+where we have used
+\begin{align*}
+\int d\vr \,
+h(r; \xi) \, \partial_\xi t(r; \xi)
+=
+\partial_\xi \int d\vr \,
+\frac{1}{2} \, h(r; \xi) \, t(r; \xi).
+\end{align*}
+%
+Then, integrating over $\xi$ yields
+%
+\begin{align}
+\beta \mu^\mathrm{ex}
+&=
+-\rho \int d\vr
+\left[
+  c(r) - B(r) - \frac{1}{2} t(r) \, h(r)
+\right]
+\notag \\
+&
++ \rho \int_0^1 d\xi \, \int d\vr
+  \, h(r; \xi) \, \partial_\xi B(r; \xi),
+\label{eq:muti}
+\end{align}
+%
+where
+$a(r)$ is short for $a(r; \xi = 1)$
+for function $a$.
+
+
+
+The trial functional form
+given by Eq. \eqref{eq:muex_trial}
+is based on Eq. \eqref{eq:muti}.
+%
+The comparison shows that
+that the correction $\Delta(r)$ is $O(\rho^2)$,
+which is small at a low density.
+
+
+
+
+\subsubsection{Approximate formula}
+
+
+
+
+
+Similar to the previous two routes,
+an approximate formula for chemical potential
+can be developed.
+%
+Below we assume that
+the functional form of Eq. \eqref{eq:muex_trial}
+holds for any $\xi$.
+%
+Then,
+in order to satisfy Eq. \eqref{eq:dmuti},
+we have
+%
+\begin{align}
+\gamma
+=
+\frac
+{
+  \int d\vr \,
+  h(r; 1) \, \partial_\xi B(r, 1)
+}
+{
+  \int d\vr \,
+  \partial_\xi \Delta(r; 1)
+}.
+\label{eq:gamma_xi_Delta}
+\end{align}
+%
+Particularly,
+for the $\Delta$ given by Eq. \eqref{eq:Delta_hB},
+we have
+%
+\begin{align}
+\gamma
+=
+\frac
+{
+  \int d\vr \, h(r; 1) \, \partial_\xi B(r, 1)
+}
+{
+  \int d\vr \,
+  \left[
+  B(r; 1) \, \partial_\xi h(r; 1)
+  +
+  h(r; 1) \, \partial_\xi B(r; 1)
+  \right]
+}.
+\label{eq:gamma_xi}
+\end{align}
+%
+
+
+
+
+
+\subsubsection{Charging parameter}
+
+
+
+
+The result of Eq. \eqref{eq:muti0}
+depends critically on
+the definition
+of the charging parameter, $\xi$.
+%
+%The choice also affects the accuracy
+%of the approximate formula
+%given by Eqs. \eqref{eq:muex_trial} and
+%\eqref{eq:gamma_xi_Delta}.
+%
+%
+%
+The most natural choice is perhaps
+given by
+%
+\begin{align}
+\phi(r; \xi)
+=
+\xi \, \phi(r).
+\label{eq:xi_phi}
+\end{align}
+%
+It, however, does not apply
+to the hard-sphere fluid.
+%
+Several alternatives are listed below.
+%
+First,
+we may let
+%
+\begin{align}
+f(r; \xi)
+=
+f(r/\xi),
+\label{eq:xi_r}
+\end{align}
+%
+which makes $\xi$ the scaling factor
+of the interaction radius.
+%
+It was shown that
+the choice was rather accurate
+for the hard-sphere fluid\cite{
+santos2012, santos2013}.
+%
+This route is referred to as
+the $\xi r$ route below.
+
+
+
+Second,
+we may let
+%
+\begin{align}
+f(r; \xi)
+=
+\xi \, f(r).
+\label{eq:xi_f}
+\end{align}
+This choice,
+referred to as the $\xi f$ route,
+is computationally convenient,
+for $\partial_\xi f(r; \xi) = f(r)$.
+
+
+
+Finally,
+the choice of
+%
+\begin{align}
+t(r; \xi)
+=
+\xi \, t(r),
+\label{eq:xi_t}
+\end{align}
+%
+which is referred to as the $\xi t$ route,
+is also occasionally used,
+for it often allows
+a closed-form expression of
+chemical potential\cite{
+attard1991}.
+%
+Note that,
+because of the linearity
+of the OZ relation:
+$t(r; \xi) =
+\rho \int d\vr' c(r'; \xi) *
+h(|\vr - \vr'|)$,
+this choice is equivalent to
+the $\xi c$ and $\xi h$ routes:
+\[
+c(r; \xi)
+=
+\xi \, c(r),
+\]
+and
+\[
+h(r; \xi)
+=
+\xi \, h(r).
+\]
+
+
+
+
+
+\subsection{
+\label{sec:eroute}
+Generalized energy route}
+
+
+
+\newcommand{\eps}{\varepsilon^\mathrm{ex}}
+\newcommand{\Eps}{\mathcal E}
+\newcommand{\U}{\mathcal U}
+
+
+
+The charging parameter, $\xi$,
+from the chemical-potential route
+applies to only
+the interaction with a single particle.
+%
+We can similarly defined a parameter, $\lambda$,
+that applies to the interaction of
+all particle pairs.
+%
+This leads to the generalized energy route.
+
+
+
+For a system with a fixed volume, we have
+%
+\begin{align*}
+d \log Z
+=
+- \Eps \, d\lambda
+- \beta \, \mu \, dN,
+\end{align*}
+%
+where
+\begin{align*}
+Z
+\equiv
+\int d\vr_1 \cdots d\vr_N \,
+\exp[ -\U_\lambda(\vr_1, \dots, \vr_N) ],
+\end{align*}
+%
+and
+%
+\begin{align*}
+\Eps
+&\equiv
+\int d\vr_1 \cdots d\vr_N \,
+\frac{ \partial \U_\lambda }
+     { \partial \lambda }
+\frac{ \exp[ -\U_\lambda(\vr_1, \dots, \vr_N) ] }
+     { Z }.
+\end{align*}
+%
+Thus,
+\[
+\partial_\lambda ( \beta \, \mu )
+=
+-\partial_\lambda
+\partial_N
+\log Z
+=
+\partial_N \Eps,
+\]
+or
+%
+\begin{equation}
+\partial_\lambda (\beta \, \mu^\mathrm{ex})
+=
+\partial_\rho (\rho \, \eps),
+\label{eq:mu_e}
+\end{equation}
+%
+where
+$\eps = \Eps^\mathrm{ex}/N$
+is the internal energy per particle.
+%
+Thus,
+%
+\begin{align}
+\beta \, \mu^\mathrm{ex}
+&=
+\int_0^1 \,
+  d\lambda \,
+  \partial_\rho (\rho \, \eps)
+\notag \\
+&=
+-\int_0^1
+  d\lambda \, \rho
+  \int d\vr \,
+    \left[
+      \partial_{\lambda} f(r)
+    \right]
+    \left(
+    1 + \tfrac{ \rho }{ 2 } \, \partial_\rho
+    \right)
+    y(r),
+\label{eq:muex_intlam}
+\end{align}
+%
+where,
+the inner integral is evaluated at $\lambda$,
+and
+we have used the relation\cite{hansen},
+%
+\begin{equation}
+\rho \, \eps
+=
+\frac{ \rho^2 } { 2 }
+\int d\vr \, \partial_\lambda [\beta \, \phi(r)] \, g(r)
+\label{eq:e_int}
+\end{equation}
+%
+and
+$\partial_\lambda [\beta \, \phi(r)] \, g(r)
+ = -[ \partial_\lambda f(r) ] \, y(r)$.
+
+
+
+
+\subsubsection{Parameter $\lambda$}
+
+
+
+The parameter, $\lambda$,
+is similar to the charging parameter, $\xi$.
+%
+We discuss a few choices below.
+First, for a linear scaling,
+$\U = \lambda \, \beta \, U$,
+we get the energy route.
+%
+This choice is inapplicable
+to the hard-sphere fluid,
+and is not discussed further.
+
+
+
+Second,
+consider the scaling of the interaction radius:
+$\phi_\lambda(r) = \phi(r/\lambda)$,
+which is referred to
+as the $\lambda r$ route.
+%
+One can show that
+Eq. \eqref{eq:muex_intlam}
+yields the same result as
+the virial-route formula,
+given by
+Eqs.
+\eqref{eq:muex_trial},
+\eqref{eq:gamma_murho},
+\eqref{eq:X},
+and
+\eqref{eq:Yv}.
+
+
+
+Generally,
+every choice of $\xi$
+can be borrowed to define $\lambda$.
+%
+Thus,
+we may consider
+$f(r; \lambda) = \lambda \, f(r)$,
+$c(r; \lambda) = \lambda \, c(r)$,
+$h(r; \lambda) = \lambda \, h(r)$,
+and
+$t(r; \lambda) = \lambda \, t(r)$,
+%
+which will be referred to as the
+$\lambda f$,
+$\lambda c$,
+$\lambda h$,
+and
+$\lambda t$
+routes, respectively.
+%
+However, unlike the chemical-potential-route cases,
+the last three options will yield different results.
 
 
 
@@ -961,264 +1055,127 @@ In Appendix \ref{apd:sc},
 
 
 
-\subsection{Chemical potential}
 
-We computed the chemical potential from a few integral equations.
+The integral equations and
+those the differential correlation functions
+were solved using the MDIIS method\cite{kovalenko1999}
+with three to five bases.
+
+
+
+\subsection{Hard-sphere fluid}
+
+
+We tested the formulae of chemical potential
+on the three-dimensional hard-sphere fluid.
+
+
+
+\subsubsection{PY}
+
+
+
+We first discuss the results
+from the PY equation.
 %
-%the PY ($y = 1 + t$), quadratic ($y = 1 + t + \eta t^2/2$),
-%Rowlinson [$y = 1 + t + \eta (\exp t - 1 - t)$],
-%and
-%Hutchinson-Conkie [HC, $y = (1+s t)^{1/s}$]
-%integral equations.
-%The parameters in the latter equations, $\eta$ and $s$,
-%were determined self-consistently using the method in Sec. \ref{sec:sc}.
-%
-To evaluate the accuracy,
-we prepared the following two reference values.
-%
-The first reference is the chemical potential computed from
-the first twelve known virial coefficients
-using \eqref{eq:muvirialseries}.
-%
-The second reference concerns the consistency
-regarding a variation of the charging parameter, $\xi$:
-%
-we compute the chemical potential $\supex{\mu'}$
-under $\xi' = 1 - \delta \xi$
-and then see if $(\muex - \supex{\mu'})/\delta \xi$
-matches
-$\partial_\xi \muex$ given by \eqref{eq:dmuti}.
-%
-Note, in the $\xi' \ne 1$ case, we simply borrow the $\gamma$ value
-from the $\xi = 1$ case without using
-\eqref{eq:gamma_muv} or \eqref{eq:gamma_muc}
-(which is an assumption of the derivation).
-
-
-\subsubsection{HNC closure}
-
-
-As shown in Fig. \ref{fig:muhnc},
-for the HNC closure,
-%
-the results from the classic formula \eqref{eq:muhnc}
-coincide with the virial-route results,
-%
-while the results of \eqref{eq:gamma_muc} and \eqref{eq:muc_series}
-agree well with the compressibility-route result.
-%
-
-
-\begin{figure}[h]
-  \makebox[\linewidth][c]{
-    \includegraphics[angle=0, width=0.9\linewidth]{fig/muhnc.pdf}
-  }
-  \caption{
-    \label{fig:muhnc}
-    Chemical potential from the HNC closure.
-    %(a) $\muex$. (b) $d\muex/d\xi$.
-    %In (a), the compressibility and virial results
-    %for the HNC closures
-    %(dashed and dotted lines, respectively)
-    %were computed from the first 64th virial coefficients.
-    %The result of Mayer sampling (solid line)
-    %was computed from the first 12th virial coefficients.
-  }
-\end{figure}
-
-
-
-
-\subsubsection{PY closure}
-
-\begin{figure}[h]
-  \makebox[\linewidth][c]{
-    \includegraphics[angle=0, width=0.9\linewidth]{fig/mupy.pdf}
-  }
-  \caption{
-    \label{fig:mupy}
-    Chemical potential from the PY closure.
-    (a) $\muex$. (b) $d\muex/d\xi$.
-    %In (a), the compressibility and virial results
-    %for the PY closures
-    %(dashed and dotted lines, respectively)
-    %were computed from the first 64th virial coefficients.
-    %That of Mayer sampling (Reference, solid line)
-    %was computed from the first 12th virial coefficients.
-  }
-\end{figure}
-
-
-
-The results of the PY closure are shown in Fig. \ref{fig:mupy}.
-%
-If the approximation \eqref{eq:approxhB} is used,
-a nonzero $\gamma$ is necessary
-to produce a reasonable chemical potential at a high density.
-%
-The value $\gamma = 2/3$ gives good results.
-%
-For comparison,
-the results of \eqref{eq:gamma_muv}
-appear to be inferior,
-whereas those of \eqref{eq:gamma_muc} are better.
-%
-This is due to the internal inconsistency
-as discussed below.
-%
-Besides,
-Eq. \eqref{eq:muc_series}, which is derived for the compressibility-route,
+For the compressibility and virial routes,
+the approximate formula given by
+Eq. \eqref{eq:muex_trial}
+[with the parameters determined from
+Eqs.
+\eqref{eq:gamma_murho},
+\eqref{eq:X},
+\eqref{eq:Yc},
 and
-Eq. \eqref{eq:mucv_consistent}, which is consistent for both
-the compressibility and virial routes,
-give good results.
+\eqref{eq:Yv}]
+were good for low densities,
+but slightly off for high densities,
+as shown in Fig. \ref{fig:muhspycv}.
 %
-This shows that the compressibility-route-based formulae
-are useful in improving the accuracy of chemical potential.
+The correction function, $\Delta = -B$,
+appeared to yield slightly better results than
+$\Delta = h \, B$.
 
-
-
-The apparently inferior chemical potential from \eqref{eq:gamma_muv}
-is a result of the internal inconsistency of the integral equation.
-%
-As shown in Fig. \ref{fig:mupy}(b),
-for $d\muex/d\xi$,
-only the results from \eqref{eq:gamma_muv} and \eqref{eq:mucv_consistent},
-which are virial-route consistent,
-agree well with the reference values
-computed from \eqref{eq:dmuti}.
-%
-
-
-
-%The $\gamma$ values
-%%%
-%%\eqref{eq:gamma_muv} achieves better agreement
-%%between $\muex(1) - \muex(1 - \delta \xi)$ and $(d\muex/d\xi) \, \delta \xi$
-%
-%\begin{figure}[h]
-%  \makebox[\linewidth][c]{
-%    \includegraphics[angle=0, width=1.0\linewidth]{fig/mugamma.pdf}
-%  }
-%  \caption{
-%    \label{fig:mugamma}
-%    The value $\gamma$ as a function of the density, $\rho$,
-%    in a few closures.
-%  }
-%\end{figure}
-%
-% The value $\gamma$ computed from \eqref{eq:gamma_muv}
-% starts with $2/3$ in the low-density region,
-% %
-% and then decreases slightly with the density, $\rho$,
-% as shown in Fig. \ref{fig:mugamma}.
-% %
-
-
-
-\subsubsection{Self-consistent closures}
 
 
 \begin{figure}[h]
   \makebox[\linewidth][c]{
-    \includegraphics[angle=0, width=0.9\linewidth]{fig/musqr.pdf}
+    \includegraphics[angle=0, width=0.9\linewidth]{fig/muhspycv.pdf}
   }
   \caption{
-    \label{fig:musqr}
-    Chemical potential $\muex$ from the self-consistent quadratic closure.
-    (a) $\partial_\rho P$-consistent, Eqs. \eqref{eq:dPcomp} and \eqref{eq:dPvirial}.
-    (b) $\partial_{\rho \xi} \mu$-consistent, Eqs. \eqref{eq:ddmuc} and \eqref{eq:ddmuv}.
-  }
-\end{figure}
-
-
-We tested the formulae on a few self-consistent closures,
-which are intended to improve the accuracy of the PY and HNC closures.
-%
-Below we used the self-consistent quadratic closure ($y = 1 + t + \eta \, t^2$) as an example.
-%
-The parameter $\eta$ is determined self-consistently using the method in Sec. \ref{sec:sc}
-and Appendix \ref{apd:sc}.
-%
-As shown in Fig. \ref{fig:musqr},
-%
-in the $\partial_\rho P$-consistent version,
-the compressibility-route based formulae,
-\eqref{eq:gamma_muc} and \eqref{eq:muc_series},
-are more accurate than the virial-route base one,
-\eqref{eq:gamma_muv}.
-%
-However, the opposite is true in the $\partial_{\rho \xi} \mu$-consistent version.
-%
-%Further, we find that if the parameters in the integral equations
-%are adjusted based on the consistency of $\partial^2_{\rho \, \xi} \mu$
-%[using \eqref{eq:ddmuc} and \eqref{eq:ddmuv}]
-%instead of that of $\partial_\rho P$
-%[using \eqref{eq:dPcomp} and \eqref{eq:dPvirial}],
-%the chemical potential from \eqref{eq:approxhB} and \eqref{eq:gamma_muv} are improved.
-%
-
-
-
-\subsubsection{Explicit bridge function}
-
-
-We computed the chemical potential from the closure with
-the explicit bridge function, $B(\vr)$,
-which was obtained from Mayer sampling
-of the density components as $B(\vr) = \sum_{l = 2}^{6} B_l(\vr) \rho^l$.
-%
-Since $\partial_\xi B(\vr; 1)$ was unavailable in this case,
-we used the predefined values $\gamma = 2/3-0.09\rho$
-instead of \eqref{eq:gamma_muv}.
-%
-However, $\partial_\rho B(\vr) = \sum_{l = 2}^{6} l \, B_l(\vr) \rho^{l-1}$
-was available,
-and \eqref{eq:gamma_muc} and \eqref{eq:muc_series} were applicable.
-%
-and the results are shown in Fig. \ref{fig:muBr}.
-%
-Clearly, $\gamma = 2/3$ yields better results than $\gamma = 0$,
-whereas the results from $\gamma = 2/3-0.09\rho$
-are even better and almost indistinguishable from the reference.
-%
-The results from \eqref{eq:gamma_muc} and \eqref{eq:muc_series}
-show only small deviation at large density.
-%
-\begin{figure}[h]
-  \makebox[\linewidth][c]{
-    \includegraphics[angle=0, width=1.0\linewidth]{fig/muBr.pdf}
-  }
-  \caption{
-    \label{fig:muBr}
-    Chemical potential from the closure with the explicit bridge function $B(\vr)$.
+    \label{fig:muhspycv}
+    Compressibility and virial routes
+    for the PY equation
+    in the three-dimensional hard-sphere fluid.
+    %
+    Unless indicated otherwise,
+    the values were computed
+    from the approximate formula,
+    Eq. \eqref{eq:muex_trial}.
+    %
+    VS12: twelve-term virial series
+    with the virial coefficients obtained
+    from simulations of Mayer sampling\cite{
+    schultz2014}.
+    %
+    (a) .
+    The exact values were taken from
+    the analytic solution\cite{
+    wertheim1963, wertheim1964, thiele1963,
+    baxter1968, hansen}.
   }
 \end{figure}
 
 
 
-
-\subsection{Pressure}
-
-
-The compressibility-route pressure is computed from the methods in Sec. \ref{sec:c-pres}.
+The three chemical-potential routes
+all underestimated the chemical potential,
+as shown in Fig. \ref{fig:muhspyxi}.
 %
-As shown in Fig. \ref{fig:Phnc}, for the HNC closure,
+Among them,
+the $\xi r$-route was the most accurate,
+whereas the $\xi f$-route was the least.
 %
-both \eqref{eq:Ptrial}
-[with $\theta = 1/2$, or determined from \eqref{eq:theta}],
-and \eqref{eq:P_series},
-give good results for the pressure.
-%
+The approximate formula,
+Eq. \eqref{eq:muex_trial},
+worked well for the correction
+$\Delta = h B$,
+but not for $\Delta = -B$.
+
 
 
 \begin{figure}[h]
   \makebox[\linewidth][c]{
-    \includegraphics[angle=0, width=1.0\linewidth]{fig/Phnc.pdf}
+    \includegraphics[angle=0, width=0.9\linewidth]{fig/muhspyxi.pdf}
   }
   \caption{
-    \label{fig:Phnc}
-    Compressibility-route pressure from the HNC closure.
+    \label{fig:muhspyxi}
+    Chemical-potential routes,
+    $\xi r$, $\xi f$ and $\xi t$ routes,
+    for the PY equation
+    in the three-dimensional hard-sphere fluid.
+    %
+    Unless indicated otherwise,
+    the values were computed
+    from the approximate formula,
+    Eq. \eqref{eq:muex_trial}.
+    %
+    VS12: twelve-term virial series
+    with the virial coefficients obtained
+    from simulations of Mayer sampling\cite{
+    schultz2014}.
+    %
+    For the $\xi r$-route values,
+    the $\xi$ integral
+    for the interval $(0, 1/2)$
+    used the exact solution\cite{
+    santos2012, santos2013}
+    instead of the approximation
+    from the integral equation
+    (although the different is negligible).
+    %
+    The reference values were obtained
+    from Eq. \eqref{eq:muti0}.
   }
 \end{figure}
 
@@ -1226,76 +1183,341 @@ give good results for the pressure.
 
 
 
-
-\section{Discussions}
-
-In summary, we have presented a simple method
-of computing the chemical potential and pressure
-from an arbitrary integral equation.
+The results from
+the generalized energy routes
+are shown in Fig. \ref{fig:muhspylam}.
 %
-The method, however, requires one to solve
-an additional integral equation
-regarding derivatives with respect to $\xi$ or $\rho$.
+The $\lambda r$ route
+yielded identical results to the virial route.
 %
-%We can, however, circumvent the problem by choosing
-%an empirical $\gamma$, as we did in the last example [\ref{fig:muBr}].
-%%
-If this is inconvenient,
-the values $\gamma \approx 2/3$ for chemical potential
-or $\theta \approx 1/2$ for pressure
-seem to work well for the hard-sphere fluid.
-%%
-However, these empirical values might not be
-applicable to more complex fluids.
-
-
-
-\appendix
-
-\section{\label{apd:sc}
-Parameter determination of self-consistent integral equations}
-
-To achieve the consistency of \eqref{eq:dPcomp} and \eqref{eq:dPvirial}
-in an integral equation with an adjustable parameter $\eta$,
-we update $\eta$ as $\eta \rightarrow \eta + \Delta \eta$,
-with $\Delta \eta$ computed from equating the following two equations
+The $\lambda c$ route
+yielded more accurate results than
+the corresponding chemical-potential route
+(the $\xi c$ route,
+which is equivalent to the $\xi t$ route),
+but the $\lambda f$ route
+yielded less accurate results than
+the $\xi f$ route.
 %
-\begin{align*}
-  \partial_\rho \big[ \beta P^{(c)} \big]
-&\approx
-  1 - \rho \int d\vr \, c
-  - \Delta \eta \, \rho
-  \int d\vr \, (f + 1) \, (dy/dt) \, \partial_\rho t,
-\\
-  \partial_\rho \big[ \beta P^{(v)} \big]
-&\approx
-  1 + (\rho/D) \int d\vr \, \vr \cdot \nabla f \,
-  \big[ y + (\rho/2) \, (dy/dt) \, \partial_\rho t \big]
-  \\
-&  + \Delta \eta
-  \, (\rho/D) \int d\vr \, \vr \cdot \nabla f \,
-  \big[ \partial_\eta y + (\rho/2) \, \partial_\eta (dy/dt) \, \partial_\rho t \big].
-\end{align*}
+The $\lambda t$ and $\lambda h$ routes
+were similar to the $\lambda c$ route
+at low densities,
+but they became unstable at high densities.
+%
+The approximate formula,
+Eq. \eqref{eq:muex_trial},
+did not work well
+for the $\lambda h$, and $\lambda t$
+routes at high densities.
+%
+Thus, a different trial function
+or a better correction function, $\Delta$,
+might be needed for these cases.
 
-Similarly, for \eqref{eq:ddmuc} and \eqref{eq:ddmuv},
-we have
-\begin{align*}
-  -\partial^2_{\rho \, \xi} \big[ \beta \mu^{(c)} \big]
-  &= \int d\vr \, \partial_\xi c \, d\vr \\
-  & + \Delta \eta \, \int d\vr \big[
-      (\partial_\xi f) \, y + (1 + f) \, (dy/dt) \, \partial_\xi t
-    \big],
-\\
-  -\partial^2_{\xi \, \rho} \big[ \beta \mu^{(v)} \big]
-  &=  \int d\vr \,
-  \partial_\xi f \,
-  \big[ y + \rho \, (dy/dt) \, \partial_\rho t \big]
-  \\
-& + \Delta \eta \, \int d\vr \,
-  \partial_\xi f \,
-  \big[ \partial_\eta y + \rho \, \partial_\eta (dy/dt) \, \partial_\rho t \big],
-\end{align*}
-and $\Delta \eta$ is solved from equating the two.
+
+
+
+\begin{figure}[h]
+  \makebox[\linewidth][c]{
+    \includegraphics[angle=0, width=0.8\linewidth]{fig/muhspylam.pdf}
+  }
+  \caption{
+    \label{fig:muhspylam}
+    Generalized energy routes
+    for the PY equation
+    in the three-dimensional hard-sphere fluid.
+    (a)
+    The $\lambda r$ and
+    $\lambda f$ routes.
+    (b)
+    The $\lambda c$,
+    $\lambda h$,
+    and
+    $\lambda t$ routes.
+    %
+    Some high density points were missing
+    because of numerical difficulty
+    and/or intrinsic instability.
+    For the approximate formula,
+    Eq. \eqref{eq:muex_trial},
+    only $\Delta = h \, B$ was used,
+    for $\Delta = -B$ often led to
+    unstable solutions.
+    %
+    VS12: twelve-term virial series
+    with the virial coefficients obtained
+    from simulations of Mayer sampling\cite{
+    schultz2014}.
+    %
+    The reference values were obtained
+    from Eq. \eqref{eq:muti0}.
+  }
+\end{figure}
+
+
+
+
+
+
+\subsubsection{HNC}
+
+
+
+
+
+For the HNC equation,
+all chemical-potential routes,
+all generalized energy routes
+and the virial route
+should yield the same value
+as that given by
+Eq. \eqref{eq:muex_hnc}.
+%
+For the $\xi r$, $\lambda c$,
+and virial routes,
+this agreement can be seen
+from Fig. \ref{fig:muhshnc},
+%
+The compressibility-route results
+were well approximated by
+Eq. \eqref{eq:muex_trial}
+[with the parameters determined from
+Eqs.
+\eqref{eq:gamma_murho},
+\eqref{eq:X},
+\eqref{eq:Yc}].
+%
+
+
+\begin{figure}[h]
+  \makebox[\linewidth][c]{
+    \includegraphics[angle=0, width=0.9\linewidth]{fig/muhshnc.pdf}
+  }
+  \caption{
+    \label{fig:muhshnc}
+    Chemical potential from the HNC equation
+    for the three-dimensional hard-sphere fluid.
+    %
+    VS12: twelve-term virial series
+    with the virial coefficients obtained
+    from simulations of Mayer sampling\cite{
+    schultz2014}.
+  }
+\end{figure}
+
+
+
+
+\subsubsection{HC}
+
+
+
+
+
+The HC equation, with $s = 0.84$,
+was a more accurate integral equatoin than
+both the PY and HNC equations.
+%
+As shown in Fig. \ref{fig:muhshc},
+all three routes improved over
+the PY or HNC counterparts.
+%
+Among them,
+the compressibility route
+was the most accurate.
+%
+The $\xi r$-route
+was again better than the virial route
+(or the $\lambda r$-route).
+%
+
+
+
+
+
+\begin{figure}[h]
+  \makebox[\linewidth][c]{
+    \includegraphics[angle=0, width=0.9\linewidth]{fig/muhshc.pdf}
+  }
+  \caption{
+    \label{fig:muhshc}
+    Chemical potential from the Hutchinson-Conkie (HC) equation
+    with $s = 0.84$
+    for the three-dimensional hard-sphere fluid.
+    %
+    VS12: twelve-term virial series
+    with the virial coefficients obtained
+    from simulations of Mayer sampling\cite{
+    schultz2014}.
+  }
+\end{figure}
+
+
+
+
+\subsubsection{Ideal $\gamma$}
+
+
+
+For the approximate formulae
+based on Eq. \eqref{eq:muex_trial},
+the difference between routes
+lies in the $\gamma$ value,
+which was obtained from
+Eq. \eqref{eq:gamma_murho}
+or
+\eqref{eq:gamma_xi_Delta}.
+%
+Here, we computed the ideal $\gamma$ values
+that yield the exact $\mu^\mathrm{ex}$,
+and the results are shown in Fig. \ref{fig:gamhs}.
+
+The optional $\gamma$
+depended on the closure
+and the correction function, $\Delta(r)$.
+%
+For the almost exact closure, ``BS8'',
+with $\Delta(r) = h(r) \, B(r)$,
+the low density limit for $\gamma$
+is indeed $2/3$,
+in agreement with the graphical analysis.
+%
+This is, however, not so
+for the PY and HC equations.
+%
+The optimal $\gamma$ did appear to be
+relatively stable:
+$\gamma^\mathrm{id}$ was around
+$0.67$ or $0.5$,
+for $\Delta = h \, B$
+and $\Delta = -B$,
+respectively.
+
+
+\begin{figure}[h]
+  \makebox[\linewidth][c]{
+    \includegraphics[angle=0, width=0.9\linewidth]{fig/gamhs.pdf}
+  }
+  \caption{
+    \label{fig:gamhs}
+    Ideal $\gamma$ values
+    for various integral equations
+    on the three-dimensional hard-sphere fluid.
+    %
+    BS8: the closure with the bridge function being
+    $B(r) = \sum_{n = 4}^8 B_n(r) \, \rho^{n-2}$.
+    %
+    The curves for BS8 is limited to $\rho \le 0.7$,
+    for higher densities require more terms
+    of the series.
+  }
+\end{figure}
+
+
+
+
+\subsection{Lennard-Jones fluid}
+
+
+
+
+In Fig. \ref{fig:muljpycv},
+we show that the chemical potential
+computed from the PY equation
+on the Lennard-Jones (LJ) fluid
+at $T = 1.5$.
+%
+We studied only the compressibility and virial routes
+because of numerical difficulties.
+%
+It became more difficult
+to approximate the virial-route chemical potential
+by Eq. \eqref{eq:muex_trial}
+than the hard-sphere case.
+
+
+
+%
+\begin{figure}[h]
+  \makebox[\linewidth][c]{
+    \includegraphics[angle=0, width=0.9\linewidth]{fig/muljpycv.pdf}
+  }
+  \caption{
+    \label{fig:muljpycv}
+    Chemical potential from the PY equation
+    on the three-dimensional LJ fluid at $T = 1.5$.
+    %
+    EOS: the PVE-hBH equation of state\cite{kolafa1994}.
+  }
+\end{figure}
+
+
+
+
+
+\section{Conclusions}
+
+
+
+
+
+We studied
+four routes of computing
+chemical potential:
+the compressibility, virial,
+chemical-potential,
+and generalized energy routes.
+%
+The first two routes
+tends to be most convenient and stable.
+
+
+
+The chemical-potential route
+depends on the choice of
+the charging parameter, $\xi$,
+and each $\xi$ generally
+yields a distinct value.
+%
+The best $\xi$ among the tested choices
+is the scaling factor
+of the interaction radius
+for the hard-sphere fluid.
+%
+For the HNC equation,
+however,
+all chemical-potential routes
+converge to the virial route.
+
+
+
+The generalized energy route
+depends on a parameter, $\lambda$,
+similar to $\xi$.
+%
+If $\lambda$ happens to be
+the radial scaling factor,
+then the generalized energy route
+recovers the virial route.
+%
+Further, for the HNC equation,
+all generalized energy routes
+converge to the virial route.
+
+
+
+The trial functional strategy can usually
+give good approximations
+for the chemical potential
+on the three-dimensional hard-sphere fluid.
+%
+For more complex fluids, however,
+better approximations
+to the trial functional
+or the correction function, $\Delta$,
+might be needed.
+
+
 
 
 \bibliography{liquid}

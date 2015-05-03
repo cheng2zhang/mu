@@ -1,21 +1,20 @@
-progs = muhs ieodfftw
+deps = $(wildcard *.h)
+progs = murhoscan muxiscan mulamscan
 
 all: $(progs)
 
-muhs: muhs.c loadgr.h zcom.h fft.h slowdht.h fftx.h ieutil.h xdouble.h
-	icc -Wall -Wremarks -DLDBL -DFFTW $< -o $@ -lfftw3l
-
-ieodfftw: ievir.c loadgr.h zcom.h fft.h slowdht.h fftx.h ieutil.h xdouble.h
+$(progs): % : %.c $(deps)
 	icc -Wall -Wremarks -DLDBL -DFFTW $< -o $@ -lfftw3l
 
 remote = cz1@129.109.88.204
+remoteBossman = $(remote):/Bossman/cz1/mu
 
 Bossman: clean
-	rsync -avLz *.[ch] $(remote):lwork/mu/mc
+	rsync -avLz *.[ch] *.py Makefile $(remoteBossman)/prog/ie/
 
 clean:
 	find . -name "*~" | xargs rm -f
-	make -C mc clean
-	rm -rf bin obj iemu*.dat a.out cr*.dat Br*.dat $(progs)
+	rm -rf bin obj iemu*.dat a.out cr*.dat Br*.dat $(progs) \
+		*.obj *.exe
 	rstrip.py -Rlv
 

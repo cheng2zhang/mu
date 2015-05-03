@@ -1,8 +1,0 @@
-For the HNC closure, use the truncated series at n = 7 and 9,
-  and then make an average
-
-compressibility route
-./getP.py BnHNCD3.dat 1 7 9 > D3Phncc.dat
-
-virial route
-./getP.py BnHNCD3.dat 2 12 13 > D3Phncv.dat
