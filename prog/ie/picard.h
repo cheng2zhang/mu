@@ -6,6 +6,8 @@
 
 
 #include "cfs.h"
+#include "cfsxi.h"
+#include "cfslam.h"
 #include "closure.h"
 
 

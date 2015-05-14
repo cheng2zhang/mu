@@ -368,6 +368,9 @@ static int mulamscan(model_t *m)
   /* initialize correlation functions for lam = 1 */
   cfs_init(c, m);
 
+  /* Lfr */
+  cfs_initLfr(c, m);
+
   /* 1. solve the case of lam = 1 */
   iter_sc(c, m);
   iterd(c, m);

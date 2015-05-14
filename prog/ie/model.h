@@ -20,18 +20,20 @@
 
 /* types of the charging parameter, xi */
 enum {
+  XITYPE_U,
   XITYPE_F,
   XITYPE_R,
   XITYPE_T,
   XITYPE_COUNT
 };
 
-const char *xitypes[] = {"f", "r", "t", "XITYPE_COUNT"};
+const char *xitypes[] = {"u", "f", "r", "t", "XITYPE_COUNT"};
 
 
 
 /* types of the global charging parameter, xi */
 enum {
+  LAMTYPE_U,
   LAMTYPE_F,
   LAMTYPE_R,
   LAMTYPE_C,
@@ -40,7 +42,7 @@ enum {
   LAMTYPE_COUNT
 };
 
-const char *lamtypes[] = {"f", "r", "c", "h", "t", "LAMTYPE_COUNT"};
+const char *lamtypes[] = {"u", "f", "r", "c", "h", "t", "LAMTYPE_COUNT"};
 
 
 
@@ -175,9 +177,9 @@ __inline static void model_default(model_t *m)
   m->nrho = 1;
   m->drho = 0.01L;
   m->nxi = 100; /* number of xi scans */
-  m->xitype = XITYPE_F;
+  m->xitype = XITYPE_R;
   m->nlam = 100;
-  m->lamtype = LAMTYPE_C;
+  m->lamtype = LAMTYPE_R;
   m->pottype = POTTYPE_HS;
   m->ietype = IETYPE_PY;
   m->ies = 0.5;
@@ -455,6 +457,8 @@ __inline static void model_doargs(model_t *m, int argc, char **argv)
         m->drho = atof(q);
       } else if ( strcmp(p, "nxi") == 0 ) {
         m->nxi = atoi(q);
+      } else if ( strcmp(p, "xi") == 0 ) {
+        m->xitype = model_select(q, XITYPE_COUNT, xitypes);
       } else if ( strcmp(p, "nlam") == 0 ) {
         m->nlam = atoi(q);
       } else if ( strcmp(p, "lam") == 0 ) {
@@ -596,3 +600,4 @@ __inline static void model_getref(model_t *m)
 
 
 #endif /* MODEL_H__ */
+

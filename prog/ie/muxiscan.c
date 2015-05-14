@@ -110,9 +110,10 @@ static int savecrtr(cfs_t *cf, char *fn0, xdouble xi)
   }
 
   for ( i = 0; i < npt; i++ ) {
-    fprintf(fp, "%g %g %g %g %g %g %g %g\n",
+    fprintf(fp, "%g %g %g %g %g %g %g %g %g\n",
         (double) cf->sphr->ri[i],
         (double) cf->cr[i], (double) cf->tr[i],
+        (double) cf->fr[i],
         (double) cf->sphr->ki[i],
         (double) cf->ck[i], (double) cf->tk[i],
         (double) cf->Dfr[i], (double) cf->Dfk[i]);
@@ -260,6 +261,8 @@ static int muxiscan(model_t *m)
   /* initialize correlation functions for xi = 1 */
   cfs_init(c, m);
 
+  cfs_initDfr(c, m);
+
   /* 1. solve the case of xi = 1 */
   iter_sc(c, m);
 
@@ -347,7 +350,6 @@ int main(int argc, char **argv)
 
   model_doargs(m, argc, argv);
   model_getref(m);
-
   muxiscan(m);
   return 0;
 }

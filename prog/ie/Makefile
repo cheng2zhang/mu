@@ -1,5 +1,7 @@
 deps = $(wildcard *.h)
-progs = murhoscan muxiscan mulamscan
+
+csrcs = $(wildcard *.c)
+progs = $(patsubst %.c, %, $(csrcs))
 
 all: $(progs)
 
