@@ -535,7 +535,7 @@ __inline static xdouble iterlL_mdiis(cfs_t *cx, const model_t *m)
     ib = mdiis_update(mdiis, cx->Lcr, cx->res, err, m->verbose);
 
     if ( m->verbose >= 2 ) {
-      fprintf(stderr, "iterxD_mdiis: it %d, err %g -> %g (min %g), ib %d -> %d\n",
+      fprintf(stderr, "iterlL_mdiis: it %d, err %g -> %g (min %g), ib %d -> %d\n",
           it, (double) errp, (double) err, (double) mdiis->errmin, ibp, ib);
     }
 

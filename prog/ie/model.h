@@ -55,7 +55,7 @@ enum {
   POTTYPE_COUNT
 };
 
-const char *pottypes[] = {"Hard-sphere", "WCA", "LJ", "Gauss", "POTTYPE_COUNT"};
+const char *pottypes[] = {"HS", "WCA", "LJ", "Gauss", "POTTYPE_COUNT"};
 
 
 
@@ -141,6 +141,7 @@ typedef struct {
   xdouble tol;
   int solver;
   xdouble bmuref;
+  xdouble cfref;
   picard_params_t picard[1];
   mdiis_params_t mdiis[1];
   xdouble crmax;
@@ -254,7 +255,7 @@ __inline static void model_help(const model_t *m)
   fprintf(stderr, "  -X:            set the charging parameter, xi, type, default %s\n", xitypes[m->xitype]);
   fprintf(stderr, "  -l, --nlam=:   set the number of global charging parameters in a lambda scan, default %d\n", m->nlam);
   fprintf(stderr, "  -L, --lam=:    set the global charging parameter, lambda, type, default %s\n", lamtypes[m->lamtype]);
-  fprintf(stderr, "  -P, --pot=:    set the potential type: Hard-sphere, WCA or LJ, default %s\n", pottypes[m->pottype]);
+  fprintf(stderr, "  -P, --pot=:    set the potential type: HS, WCA or LJ, default %s\n", pottypes[m->pottype]);
   fprintf(stderr, "  -C, --ie=:     set the closure: PY, HNC, ..., default %s\n", ietypes[m->ietype]);
   fprintf(stderr, "  --sc=:         set the self-consistency type, default %s\n", sctypes[m->sctype]);
   fprintf(stderr, "  -S, --sol=:    set the solver: Picard or MDIIS, default %s\n", solvers[m->solver]);
@@ -594,6 +595,7 @@ __inline static void model_getref(model_t *m)
     double pref, Fref, muref;
     ljeos3d_get((double) m->rho, (double) m->temp, &pref, &Fref, &muref);
     m->bmuref = muref / m->temp;
+    m->cfref = pref / m->temp / m->rho;
   }
 }
 

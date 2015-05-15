@@ -19,6 +19,8 @@ enum {
   BMUG1,  /* -rho Int (c - h t / 2 - gam1 h B) dr */
   GAM2,   /* gam2 = Int B Dh  dr / Int DB dr */
   BMUG2,  /* -rho Int (c - h t / 2 + gam2 B) dr */
+  DCFFY,  /* DZ = D(beta P / rho) = -rho Int Df [y + rho dy/drho]/2 dr */
+  CFFY,   /* compressibility factor, Z */
   BMULAST
 };
 
@@ -92,9 +94,10 @@ static int savecrtr(cfs_t *cf, char *fn0, xdouble lam)
   }
 
   for ( i = 0; i < npt; i++ ) {
-    fprintf(fp, "%g %g %g %g %g %g %g %g\n",
+    fprintf(fp, "%g %g %g %g %g %g %g %g %g\n",
         (double) cf->sphr->ri[i],
         (double) cf->cr[i], (double) cf->tr[i],
+        (double) cf->fr[i],
         (double) cf->sphr->ki[i],
         (double) cf->ck[i], (double) cf->tk[i],
         (double) cf->Dfr[i], (double) cf->Dfk[i]);
@@ -108,9 +111,9 @@ static int savecrtr(cfs_t *cf, char *fn0, xdouble lam)
 
 
 
-/* get d (beta * mu) / d xi */
-static xdouble getDbmu(cfs_t *cf,
-    const model_t *m, xdouble *out)
+/* get d (beta * mu) / d lam */
+static xdouble getLbmu(cfs_t *cf, const model_t *m,
+    xdouble lam, xdouble *out)
 {
   sphr_t *sphr = cf->sphr;
   int i, npt = sphr->npt;
@@ -179,8 +182,15 @@ static xdouble getDbmu(cfs_t *cf,
   //num1 = -(sLfy + rho*sLfdy/2) + sLc-sLB-(shLt+stLh)/2;
   den = sc - sB - sht/2;
 
-  out[DBMUFY] = -rho * (sLfy + rho/2*sLfdy);
-  out[BMUEMP] = -rho * (den - shB*2/3);
+  if ( FABS(lam) <= 0 ) {
+    out[DBMUFY] = 0;
+    out[BMUEMP] = 0;
+    out[DCFFY] = 0;
+  } else {
+    out[DBMUFY] = -rho * (sLfy + rho/2*sLfdy);
+    out[BMUEMP] = -rho * (den - shB*2/3);
+    out[DCFFY] = -rho * (sLfy + rho*sLfdy)/2;
+  }
 
   /* correction function is h B */
   out[GAM1] = num / (shLB + sBLh);
@@ -395,7 +405,8 @@ static int mulamscan(model_t *m)
     } else if ( m->lamtype == LAMTYPE_T ) {
       lamt_solve(c, cx, lam, m);
       iterd(cx, m);
-    } else if ( m->lamtype == LAMTYPE_F
+    } else if ( m->lamtype == LAMTYPE_U
+             || m->lamtype == LAMTYPE_F
              || m->lamtype == LAMTYPE_R ) {
       iter(cx, m);
       iterd(cx, m);
@@ -407,7 +418,7 @@ static int mulamscan(model_t *m)
 
     savecrtr(cx, m->fncrtr, lam);
 
-    getDbmu(cx, m, bmu[k]);
+    getLbmu(cx, m, lam, bmu[k]);
 
     printf("rho %g, lam %g, Lbmu %g, bm %d\n",
         (double) m->rho, (double) lam,
@@ -416,14 +427,18 @@ static int mulamscan(model_t *m)
 
   /* integrate over the differential quantities */
   bmu[0][BMUFY] = 0;
+  bmu[0][CFFY] = 1;
   for ( k = 1; k <= nlam; k++ ) {
     bmu[k][BMUFY] = bmu[k - 1][BMUFY] + (bmu[k][DBMUFY] + bmu[k - 1][DBMUFY]) / 2 / nlam;
+    bmu[k][CFFY]  = bmu[k - 1][CFFY]  + (bmu[k][DCFFY]  + bmu[k - 1][DCFFY] ) / 2 / nlam;
   }
 
-  printf("bmu %g; emp %g; hB %g %g; B %g %g\n",
+  printf("bmu %g; emp %g; hB %g %g; B %g %g; bmuref %g, Z %g, Zref %g\n",
     (double) bmu[nlam][BMUFY], (double) bmu[nlam][BMUEMP],
     (double) bmu[nlam][BMUG1], (double) bmu[nlam][GAM1],
-    (double) bmu[nlam][BMUG2], (double) bmu[nlam][GAM2]);
+    (double) bmu[nlam][BMUG2], (double) bmu[nlam][GAM2],
+    (double) m->bmuref,
+    (double) bmu[nlam][CFFY], (double) m->cfref);
 
   /* report the scanning result */
   mulamscan_report(m->fnrep, bmu, m);

@@ -31,18 +31,18 @@ __inline static void cfs_xir_Dfr2k(cfs_t *c,
 
 
 
-/* initialize Dfr */
+/* initialize Dfr for xi == 1 */
 __inline static void cfs_initDfr(cfs_t *c, model_t *m)
 {
   int i, npt = c->sphr->npt;
 
   /* df/dxi */
-  if ( m->xitype == XITYPE_R ) {
-    for ( i = 0; i < npt; i++ ) {
+  for ( i = 0; i < npt; i++ ) {
+    if ( m->xitype == XITYPE_U ) {
+      c->Dfr[i] = (c->fr[i] + 1) * (-c->bphi[i]);
+    } else if ( m->xitype == XITYPE_R ) {
       c->Dfr[i] = -c->rdfr[i];
-    }
-  } else if ( m->xitype == XITYPE_F ) {
-    for ( i = 0; i < npt; i++ ) {
+    } else if ( m->xitype == XITYPE_F ) {
       c->Dfr[i] = c->fr[i];
     }
   }
@@ -80,6 +80,44 @@ __inline static void cfs_initDfr2(cfs_t *c1, cfs_t *c2,
 
 
 /* initialize a set of correlation functions for xi < 1
+ * with xi being proportional to the potential */
+__inline static int cfs_init_xiu(cfs_t *c, cfs_t *cb,
+    xdouble xi, const model_t *m)
+{
+  sphr_t *sphr = c->sphr;
+  int i, npt = sphr->npt;
+
+  cfs_mkfr(cb, m, 1, xi);
+
+  for ( i = 0; i < npt; i++ ) {
+    cb->Dfr[i] = -cb->bphi[i] * (cb->fr[i] + 1);
+    cb->Dcr[i] = cb->Dfr[i];
+  }
+
+  sphr_r2k(sphr, c->Dfr, c->Dfk);
+
+  for ( i = 0; i < npt; i++ ) {
+    if ( xi < 1 - 1e-8 ) {
+      cb->cr[i] = cb->fr[i];
+    } else {
+      cb->cr[i] = c->cr[i];
+    }
+  }
+
+  sphr_r2k(cb->sphr, cb->fr, cb->fk); /* f(r) --> t(k) */
+
+  for ( i = 0; i < npt; i++ ) {
+    cb->tk[i] = cb->fk[i] * c->fk[i];
+  }
+
+  sphr_k2r(cb->sphr, cb->tk, cb->ffr); /* t(k) --> ff(r) */
+
+  return 0;
+}
+
+
+
+/* initialize a set of correlation functions for xi < 1
  * with xi being the interaction radius */
 __inline static int cfs_init_xir(cfs_t *c, cfs_t *cb,
     xdouble xi, const model_t *m)
@@ -87,7 +125,7 @@ __inline static int cfs_init_xir(cfs_t *c, cfs_t *cb,
   sphr_t *sphr = c->sphr;
   int i, npt = sphr->npt;
 
-  cfs_mkfr(cb, m, xi);
+  cfs_mkfr(cb, m, xi, 1);
 
   for ( i = 0; i < npt; i++ ) {
     cb->Dfr[i] = (xi > 0 ? -cb->rdfr[i] / xi : 0.0);
@@ -168,7 +206,9 @@ __inline static int cfs_init_xi(cfs_t *c, cfs_t *cb,
     cb->tr[i] = 0;
   }
 
-  if ( m->xitype == XITYPE_R ) {
+  if ( m->xitype == XITYPE_U ) {
+    return cfs_init_xiu(c, cb, xi, m);
+  } else if ( m->xitype == XITYPE_R ) {
     return cfs_init_xir(c, cb, xi, m);
   } else if ( m->xitype == XITYPE_F ) {
     return cfs_init_xif(c, cb, xi, shallow);

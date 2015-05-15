@@ -178,9 +178,10 @@ __inline static void cfs_close(cfs_t *c)
 
 
 /* compute f(r)
-   fills c->bphi, c->fr, and c->rdfr */
+ * f(r, xi, lam) = lam f(r/xi);
+ * fills c->bphi, c->fr, and c->rdfr */
 __inline static void cfs_mkfr(cfs_t *c,
-    const model_t *m, xdouble xi)
+    const model_t *m, xdouble xi, xdouble lam)
 {
   sphr_t *sphr = c->sphr;
   int i, npt = m->npt;
@@ -195,11 +196,14 @@ __inline static void cfs_mkfr(cfs_t *c,
     xdouble r = sphr->ri[i];
 
     if ( m->pottype == POTTYPE_GAUSS ) { /* f(r) = exp(-r^2) */
-      xdouble r2;
+      xdouble r2, xp;
+
       r2 = pow_si(r, 2);
-      c->fr[i] = -EXP(-r2);
-      c->rdfr[i] = -2 * r2 * c->fr[i];
-      c->bphi[i] = -LOG(c->fr[i] + 1);
+      xp = EXP(-r2);
+      c->bphi[i] = -lam * LOG(1 - xp);
+      c->fr[i] = POW(1 - xp, lam) - 1;
+      c->rdfr[i] = lam * POW(1 - xp, lam - 1) * (2 * r2) * xp;
+
     } else if ( m->pottype == POTTYPE_WCA
              || m->pottype == POTTYPE_LJ ) {
       xdouble invr, invr2, invr6;
@@ -229,9 +233,9 @@ __inline static void cfs_mkfr(cfs_t *c,
       }
 
       c->bphi[i] = u;
-      x = EXP( -c->bphi[i] );
+      x = EXP( -c->bphi[i] * lam );
       c->fr[i] = x - 1;
-      c->rdfr[i] = m->beta * rdu * x;
+      c->rdfr[i] = m->beta * lam * rdu * x;
     } else if ( m->pottype == POTTYPE_HS ) { /* hard-sphere */
       c->bphi[i] = 0;
       c->fr[i] = (i < c->bm) ? -1 : 0;
@@ -268,7 +272,7 @@ __inline static void cfs_init(cfs_t *c, const model_t *m)
   int i, npt = sphr->npt;
 
   /* initialize c->bphi, c->fr, c->rdfr, and c->bm */
-  cfs_mkfr(c, m, 1);
+  cfs_mkfr(c, m, 1, 1);
 
   for ( i = 0; i < npt; i++ ) {
     c->dcr[i] = c->cr[i] = c->fr[i];

@@ -37,12 +37,12 @@ __inline static void cfs_initLfr(cfs_t *c, model_t *m)
   int i, npt = c->sphr->npt;
 
   /* df/dlam */
-  if ( m->lamtype == LAMTYPE_R ) {
-    for ( i = 0; i < npt; i++ ) {
+  for ( i = 0; i < npt; i++ ) {
+    if ( m->lamtype == LAMTYPE_U ) {
+      c->Lfr[i] = (c->fr[i] + 1) * (-c->bphi[i]);
+    } else if ( m->lamtype == LAMTYPE_R ) {
       c->Lfr[i] = -c->rdfr[i];
-    }
-  } else {
-    for ( i = 0; i < npt; i++ ) {
+    } else if ( m->lamtype == LAMTYPE_F ) {
       c->Lfr[i] = c->fr[i];
     }
   }
@@ -57,6 +57,44 @@ __inline static void cfs_initLfr(cfs_t *c, model_t *m)
 
 
 /* initialize a set of correlation functions for lam < 1
+ * with lam being prortional to the potential  */
+__inline static int cfs_init_lamu(cfs_t *c, cfs_t *cb,
+    xdouble lam, const model_t *m)
+{
+  sphr_t *sphr = c->sphr;
+  int i, npt = sphr->npt;
+
+  cfs_mkfr(cb, m, 1, lam);
+
+  for ( i = 0; i < npt; i++ ) {
+    cb->Lfr[i] = -cb->bphi[i] * (cb->fr[i] + 1);
+    cb->Lcr[i] = cb->Lfr[i];
+  }
+
+  cfs_lamr_Lfr2k(cb, lam, m);
+
+  for ( i = 0; i < npt; i++ ) {
+    if ( lam < 1 - 1e-8 ) {
+      cb->cr[i] = cb->fr[i];
+    } else {
+      cb->cr[i] = c->cr[i];
+    }
+  }
+
+  sphr_r2k(cb->sphr, cb->fr, cb->fk); /* f(r) --> t(k) */
+
+  for ( i = 0; i < npt; i++ ) {
+    cb->tk[i] = cb->fk[i] * c->fk[i];
+  }
+
+  sphr_k2r(cb->sphr, cb->tk, cb->ffr); /* t(k) --> ff(r) */
+
+  return 0;
+}
+
+
+
+/* initialize a set of correlation functions for lam < 1
  * with lam being the interaction radius */
 __inline static int cfs_init_lamr(cfs_t *c, cfs_t *cb,
     xdouble lam, const model_t *m)
@@ -64,7 +102,7 @@ __inline static int cfs_init_lamr(cfs_t *c, cfs_t *cb,
   sphr_t *sphr = c->sphr;
   int i, npt = sphr->npt;
 
-  cfs_mkfr(cb, m, lam);
+  cfs_mkfr(cb, m, lam, 1);
 
   for ( i = 0; i < npt; i++ ) {
     cb->Lfr[i] = (lam > 0 ? -cb->rdfr[i] / lam : 0);
@@ -143,7 +181,9 @@ __inline static int cfs_init_lam(cfs_t *c, cfs_t *cb,
     cb->tr[i] = 0;
   }
 
-  if ( m->lamtype == LAMTYPE_R ) {
+  if ( m->lamtype == LAMTYPE_U ) {
+    return cfs_init_lamu(c, cb, lam, m);
+  } else if ( m->lamtype == LAMTYPE_R ) {
     return cfs_init_lamr(c, cb, lam, m);
   } else if ( m->lamtype == LAMTYPE_F ) {
     return cfs_init_lamf(c, cb, lam, shallow);

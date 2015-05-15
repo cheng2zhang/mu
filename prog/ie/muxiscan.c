@@ -128,8 +128,8 @@ static int savecrtr(cfs_t *cf, char *fn0, xdouble xi)
 
 
 /* get d (beta * mu) / d xi */
-static xdouble getDbmu(cfs_t *cf,
-    const model_t *m, xdouble *out)
+static xdouble getDbmu(cfs_t *cf, const model_t *m,
+    xdouble xi, xdouble *out)
 {
   sphr_t *sphr = cf->sphr;
   int i, npt = sphr->npt;
@@ -179,9 +179,14 @@ static xdouble getDbmu(cfs_t *cf,
     sBDh += sDfyB;
   }
 
-  out[DBMUFY] = -rho * sDfy;
+  if ( FABS(xi) <= 0 ) {
+    out[DBMUFY] = 0;
+    out[DBMU1] = 0;
+  } else {
+    out[DBMUFY] = -rho * sDfy;
+    out[DBMU1] = -rho * (sDc - sDB - shDt - shDB);
+  }
 
-  out[DBMU1] = -rho * (sDc - sDB - shDt - shDB);
   out[BMU0] = -rho * (sc - sht/2);
   out[BMUEMP] = -rho * (sc - sB - sht/2 - shB*2/3);
 
@@ -287,7 +292,7 @@ static int muxiscan(model_t *m)
     savecrtr(cx, m->fncrtr, xi);
 
     /* 2.3 compute quantities */
-    getDbmu(cx, m, bmu[k]);
+    getDbmu(cx, m, xi, bmu[k]);
 
     printf("rho %g, xi %g, Dbmu %g, %g, bm %d\n",
         (double) m->rho, (double) xi,
@@ -325,11 +330,12 @@ static int muxiscan(model_t *m)
     }
   }
 
-  printf("bmu %g, %g, %g; emp %g; hB %g %g; B %g %g\n",
+  printf("bmu %g, %g, %g; emp %g; hB %g %g; B %g %g, bmuref %g, Zref %g\n",
     (double) bmu[nxi][BMUFY], (double) bmu[nxi][BMUFYB], (double) bmu[nxi][BMU1],
     (double) bmu[nxi][BMUEMP],
     (double) bmu[nxi][BMUG1], (double) bmu[nxi][GAM1],
-    (double) bmu[nxi][BMUG2], (double) bmu[nxi][GAM2]);
+    (double) bmu[nxi][BMUG2], (double) bmu[nxi][GAM2],
+    (double) m->bmuref, (double) m->cfref);
 
   /* report the scanning result */
   muxiscan_report(m->fnrep, bmu, m);
