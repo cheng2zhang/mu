@@ -408,7 +408,11 @@ __inline static int model_load(model_t *m, const char *fn)
   }
 
   fclose(fp);
-  model_compute(m);
+
+  /* no need to call model_compute() here
+   * for it will destroy the default values
+  //model_compute(m);
+  */
 
   return 0;
 }

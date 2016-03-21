@@ -3,23 +3,25 @@ File description
 
 File          | Description
 --------------|--------------------------------------------
+gr.c          | simple exercise of computing the radial distribution function, g(r)
 murhoscan.c   | integrating over the density
 muxiscan.c    | integrating over the charging parameter
 muxiscan.py   | calls muxiscan.exe over a density range
 mulamscan.c   | integrate over the global charging parameter
 mulamscan.py  | calls mulamscan.exe over a density range
-pyhs.c        | exact solution of the hard-sphere fluid (driver)
+pyhs.c        | print the exact pressure and chemical of the hard-sphere fluid (driver)
 --------------|--------------------------------------------
 util.h        | utility functions
 cfs.h         | correlation functions
 model.h       | parameters and its IO
 picard.h      | Picard solver
 mdiis.h       | MDIIS solver
+solver.h      | wrapper of picard.h and mdiis.h
 ref.h         | reading and using reference values (Pmuhsvs12.dat)
 brseries.h    | reading and using the exact bridge function components (crtrD3M8192ms.dat)
 sc.h          | self-consistently determine the parameter in the integral equation
 --------------|--------------------------------------------
-pyhs.h        | exact solution of the hard-sphere fluid
+pyhs.h        | exact presure and chemical potential of the hard-sphere fluid
 ljeos.h       | Lennard-Jones equation of state
 --------------|--------------------------------------------
 xdouble.h     | define the `xdouble` type
@@ -28,13 +30,21 @@ fft.h         | fast Fourier transform, for odd dimensions
 slowdht.h     | discrete Hankel transform, for even dimensions
 
 
+Compilation
+===========
+
+Under Linux, all files can be compiled by simply enter
+```
+make
+```
+
 
 murhoscan
 ==========
 
 Compute the chemical potential by a scan over the density.
 
-The executable is murhoscan.exe,
+The executable is `murhoscan.exe`,
 which can be obtained by
 ```
 cl murhoscan.c

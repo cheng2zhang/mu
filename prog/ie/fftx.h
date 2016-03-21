@@ -146,6 +146,8 @@ __inline static sphr_t *sphr_init(int dim, int npt)
   /* B2 of the Gaussian model */
   sphr->B2g = SQRT(pow_si(PI, dim))/2;
 
+  /* surfr * r^(dim - 1) is the surface area
+   * of a sphere of radius r */
   sphr->surfr = sphr->B2hs * 2 * dim;
   sphr->surfk = sphr->surfr / pow_si(PI*2, dim);
 
@@ -397,7 +399,7 @@ __inline static sphr_t *sphr_openfft(int dim, int npt, xdouble rmax, int ffttype
 /* compute
  *  out(k) = fac Int {from 0 to infinity} dr
  *           r^(D/2) in(r) J_{D/2-1}(k r) */
-INLINE void sphr_dht(xdouble *in, xdouble *out, xdouble fac,
+__inline void sphr_dht(xdouble *in, xdouble *out, xdouble fac,
     xdht *dht, xdouble *arr, xdouble *r2p, xdouble *k2p)
 {
   int i, npt = dht->size;
