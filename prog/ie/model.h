@@ -120,6 +120,7 @@ typedef struct {
 
   /* parameters for the density, rho, scan */
   int nrho;
+  xdouble rhomin;
   xdouble rhomax;
   xdouble drho;
 
@@ -171,6 +172,7 @@ __inline static void model_default(model_t *m)
   memset(m, 0, sizeof(*m));
   m->dim = 3;
   m->rho = 0.3L;
+  m->rhomin = 0;
   m->rhomax = m->rho;
   m->temp = 2;
   m->beta = 0.5;
@@ -249,6 +251,7 @@ __inline static void model_help(const model_t *m)
   fprintf(stderr, "  -O, --rep=:    set the output report file, default: %s\n", m->fnrep);
   fprintf(stderr, "  -D, --dim=:    set the dimension, default %d\n", m->dim);
   fprintf(stderr, "  -r, --rho=:    set the (maximal) density, default %g\n", (double) m->rho);
+  fprintf(stderr, "  --rhomin=:     set the minimal density for a density scan, default %g\n", (double) m->rhomin);
   fprintf(stderr, "  -T:            set the temperautre, default %g\n", (double) m->temp);
   fprintf(stderr, "  -z, --drho=:   set the density increment in a rho scan, default %g\n", (double) m->drho);
   fprintf(stderr, "  -x, --nxi=:    set the number of charging parameters in a xi scan, default %d\n", m->nxi);
@@ -280,7 +283,7 @@ __inline static void model_compute(model_t *m)
 {
   m->beta = 1 / m->temp;
   m->rhomax = m->rho;
-  m->nrho = (int) (m->rho / m->drho + 0.5);
+  m->nrho = (int) ( (m->rhomax - m->rhomin) / m->drho + 0.5 );
   m->hsr = ( m->pottype == POTTYPE_HS
          && (m->xitype == XITYPE_R || m->lamtype == LAMTYPE_R) );
 
@@ -342,8 +345,10 @@ __inline static int model_load(model_t *m, const char *fn)
     if ( strcmpfuzzy(key, "D") == 0
       || strcmpfuzzy(key, "dim") == 0 ) {
       m->dim = atoi(val);
-    } else if ( strcmpfuzzy(key, "rho") ) {
+    } else if ( strcmpfuzzy(key, "rho") == 0 ) {
       m->rho = atof(val);
+    } else if ( strcmpfuzzy(key, "rhomin") == 0 ) {
+      m->rhomin = atof(val);
     } else if ( strcmpfuzzy(key, "T") == 0
              || strcmpfuzzy(key, "temp") == 0 ) {
       m->temp = atof(val);
@@ -460,6 +465,8 @@ __inline static void model_doargs(model_t *m, int argc, char **argv)
         m->rho = atof(q);
       } else if ( strcmp(p, "drho") == 0 ) {
         m->drho = atof(q);
+      } else if ( strcmp(p, "rhomin") == 0 ) {
+        m->rhomin = atof(q);
       } else if ( strcmp(p, "nxi") == 0 ) {
         m->nxi = atoi(q);
       } else if ( strcmp(p, "xi") == 0 ) {

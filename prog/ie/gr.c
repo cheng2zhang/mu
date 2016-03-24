@@ -20,10 +20,10 @@ __inline static int cfs_save_ez(cfs_t *c, char *fn)
   }
 
   for ( i = 0; i < npt; i++ ) {
-    double gr = c->cr[i] + c->tr[i] + 1;
+    xdouble gr = c->cr[i] + c->tr[i] + 1;
     fprintf(fp, "%8.6f %14.8f %14.8f %14.8f\n",
         (double) c->sphr->ri[i],
-        (double) c->cr[i], (double) c->tr[i], gr);
+        (double) c->cr[i], (double) c->tr[i], (double) gr);
   }
   fclose(fp);
 
@@ -34,17 +34,17 @@ __inline static int cfs_save_ez(cfs_t *c, char *fn)
 
 /* compute the coordination number
  * by integrating g(r) */
-static double getcoordnum(cfs_t *c)
+static xdouble getcoordnum(cfs_t *c)
 {
   sphr_t *sphr = c->sphr;
   int i, npt = sphr->npt;
-  double rm, gr, cnum;
+  xdouble rm, gr, cnum;
 
   /* integrate g(r) dr until rm */
   cnum = 0;
   /* rm is the distance to the next nearest neighbor
    * in the close packing configuration */
-  rm = sqrt( (sphr->dim + 1.) / (sphr->dim - 1.) );
+  rm = SQRT( (sphr->dim + 1.) / (sphr->dim - 1.) );
   for ( i = 0; i < npt; i++ ) {
     gr = c->cr[i] + c->tr[i] + 1;
     if ( sphr->ri[i] >= rm ) {
@@ -61,11 +61,11 @@ static double getcoordnum(cfs_t *c)
 
 
 /* find the minimal value of gr */
-static double getgrmin(cfs_t *c)
+static xdouble getgrmin(cfs_t *c)
 {
   sphr_t *sphr = c->sphr;
   int i, npt = sphr->npt;
-  double gr = 1.0, grold = DBL_MAX;
+  xdouble gr = 1, grold = DBL_MAX;
 
   /* find the first nonvanishing bin */
   for ( i = 0; i < npt; i++ ) {
@@ -95,7 +95,7 @@ static int getgr(model_t *m)
   sphr_t *sphr;
   cfs_t *c;
   int k;
-  double cnum = 0, grmin = 1;
+  xdouble cnum = 0, grmin = 1;
 
   /* initialize an object for Fourier transform
    * of a spherical function */
@@ -109,7 +109,7 @@ static int getgr(model_t *m)
 
   /* use a loop to increase the density gradually */
   for ( k = 0; k <= m->nrho; k++ ) {
-    m->rho = m->drho * k;
+    m->rho = m->rhomin + m->drho * k;
 
     /* iteratively solve c(r) and t(r) */
     iter(c, m);
@@ -123,19 +123,17 @@ static int getgr(model_t *m)
     /* save the correlation functions */
     cfs_save_ez(c, m->fncrtr);
 
-    if ( m->verbose > 0 ) {
-      fprintf(stderr, "rho %g, cnum %g, grmin %g, c(0) %g\n",
-          m->rho, cnum, grmin, c->cr[0]);
-    }
+    fprintf(stderr, "rho %g, cnum %g, grmin %g, c(0) %g\n",
+        (double) m->rho, (double) cnum, (double) grmin, (double) c->cr[0]);
 
     /* the integral equation fail to have meaning
      * when g(r) becomes negative */
-    if ( grmin < 0 ) {
+    if ( grmin < 1e-3 ) {
       break;
     }
   }
 
-  printf("rho %g, cnum %g\n", m->rho, cnum);
+  printf("rho %g, cnum %g\n", (double) m->rho, (double) cnum);
 
   return 0;
 }

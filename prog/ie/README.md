@@ -39,6 +39,22 @@ make
 ```
 
 
+gr
+==
+
+To make it, type
+```
+make gr
+```
+This will produce `gr_fftw` for odd dimensions and `gr_gsl` for even dimensions.
+
+The following example does a density scan from 1.4 to 1.6
+for four dimensions.
+```
+./gr_gsl -v -D 4 --rhomin=1.4 --rhomax=1.6
+```
+
+
 murhoscan
 ==========
 

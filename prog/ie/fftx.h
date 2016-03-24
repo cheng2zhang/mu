@@ -40,7 +40,7 @@ typedef void *FFTWPFX(plan);
 
 #ifdef DHT /* for even and odd dimensions */
 #include "slowdht.h"
-int dhtdisk = SLOWDHT_USEDISK;
+int dhtdisk_s = SLOWDHT_USEDISK;
 typedef void *FFTWPFX(plan);
 #endif
 
@@ -447,7 +447,7 @@ __inline static void sphr_jadjustrmax(sphr_t *sphr, xdouble rmax0)
 
 
 #define sphr_open(dim, npt, rmax, Rmax, ffttype) \
-  sphr_opendht(dim, npt, rmax, Rmax, dhtdisk)
+  sphr_opendht(dim, npt, rmax, Rmax, dhtdisk_s)
 
 __inline static sphr_t *sphr_opendht(int dim, int npt, xdouble rmax,
     xdouble Rmax, int dhtdisk)
